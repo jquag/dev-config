@@ -1,0 +1,6 @@
+{
+    "vim.changeWordIncludesWhitespace": true,
+    "editor.lineNumbers": "relative",
+    "workbench.tree.indent": 16,
+    "vim.vimrc.enable": true
+}
