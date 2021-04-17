@@ -24,13 +24,14 @@ Plugin 'mattn/emmet-vim'
 Plugin 'OmniSharp/omnisharp-vim'
 Plugin 'vim-airline/vim-airline'
 Plugin 'RRethy/vim-illuminate'
+Plugin 'elixir-editors/vim-elixir'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
 
 syntax enable
-set timeoutlen=500
+" set timeoutlen=500
 set tabstop=4
 set shiftwidth=4
 set expandtab
@@ -94,3 +95,24 @@ endfunction
 " VCoolor settings
 nmap <leader>c :VCoolor<cr>
 
+" YouCompleteMe
+let g:ycm_language_server = 
+  \ [ 
+  \   {
+  \     'name': 'yaml',
+  \     'cmdline': [ '/path/to/yaml/server/yaml-language-server', '--stdio' ],
+  \     'filetypes': [ 'yaml' ]
+  \   },
+  \   {
+  \     'name': 'rust',
+  \     'cmdline': [ 'ra_lsp_server' ],
+  \     'filetypes': [ 'rust' ],
+  \     'project_root_files': [ 'Cargo.toml' ]
+  \   },
+  \   {
+  \     'name': 'godot',
+  \     'filetypes': [ 'gdscript' ],
+  \     'port': 6008,
+  \     'project_root_files': [ 'project.godot' ]
+  \    }
+  \ ]
