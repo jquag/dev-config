@@ -36,7 +36,7 @@ nnoremap <leader>gga :action Annotate<cr>
 
 " === Section: window management ===
 noremap <leader>ca :action CloseAllEditorsButActive<cr>
-noremap <leader>vs :action MoveEditorToOppositeTabGroup<cr>
-noremap <leader>tt :action OpenEditorInOppositeTabGroup<cr>
+noremap <leader>vs :action MoveTabRight<cr>
+noremap <leader>vv :action MoveEditorToOppositeTabGroup<cr>
 noremap <leader>ff :action HideAllWindows<cr>
 set ideajoin

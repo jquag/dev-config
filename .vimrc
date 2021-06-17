@@ -13,7 +13,9 @@ set hlsearch
 set autoindent
 set ignorecase
 let g:loaded_matchparen = 1
-colo desert
+let g:markdown_folding = 1
+set background=dark
+colo gruvbox
 
 " ensure vim plug is installed
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
@@ -41,6 +43,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale' " linting
 Plug 'habamax/vim-godot'
+Plug 'morhetz/gruvbox'
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else

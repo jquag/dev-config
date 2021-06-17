@@ -7,5 +7,5 @@ ln -s $(pwd)/.zshrc ${HOME}/.zshrc
 mkdir -p ${HOME}/.config/nvim
 ln -s $(pwd)/nvim-init.vim ${HOME}/.config/nvim/init.vim
 
-mkdir -p ${HOME}/.config/karabiner/assets/complex_modifications
-ln -s $(pwd)/karabiner-custom.json ${HOME}/.config/karabiner/assets/complex_modifications
+mkdir -p ${HOME}/.config/karabiner/
+ln -s $(pwd)/karabiner-custom.json ${HOME}/.config/karabiner/karabiner.json
