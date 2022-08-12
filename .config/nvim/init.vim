@@ -128,9 +128,6 @@ let NERDTreeQuitOnOpen = 1
 let g:vim_svelte_plugin_use_typescript = 1
 
 let test#strategy = "neovim"
-" let g:test#javascript#jest#file_pattern = '\v(__tests__/.*|(spec|test))\.(js|jsx|coffee|ts|tsx)$'
-" let g:test#javascript#jest#file_pattern = '\v.*\.test\.(js|jsx|coffee|ts|tsx)$'
-"
 lua <<EOF
   require('nvim-test').setup()
   require('nvim-test.runners.jest'):setup {
@@ -262,6 +259,10 @@ require'nvim-treesitter.configs'.setup {
   -- One of "all", "maintained" (parsers with maintainers), or a list of languages
   ensure_installed = "all",
 
+  ignore_install = {
+    "phpdoc", "tree-sitter-phpdoc"
+  },
+
   -- Install languages synchronously (only applied to `ensure_installed`)
   sync_install = false,
 
@@ -335,30 +336,44 @@ M.config = function()
             },
             lsp_definitions = {
                 initial_mode = "normal",
-            }
+            },
+            lsp_references = {
+              show_line = false,
+            },
         }
     })
 
 end
 
 M.changed_on_branch = function()
-    local previewers = require('telescope.previewers')
-    local pickers = require('telescope.pickers')
-    local sorters = require('telescope.sorters')
-    local finders = require('telescope.finders')
-    local script = CONFIG_PATH .. '/scripts/git-branch-modified.fish'
-
-    pickers.new({
-        results_title = 'Modified on current branch',
-        finder = finders.new_oneshot_job({ script, 'list' }, {}),
-        sorter = sorters.get_fuzzy_file(),
-        previewer = previewers.new_termopen_previewer({
-            get_command = function(entry)
-                return { script, 'diff', entry.value }
+  local previewers = require('telescope.previewers')
+  local pickers = require('telescope.pickers')
+  local sorters = require('telescope.sorters')
+  local finders = require('telescope.finders')
+  local script = CONFIG_PATH .. '/scripts/git-branch-modified.fish'
+ 
+  pickers.new({
+    results_title = 'Modified on current branch',
+    finder = finders.new_oneshot_job({ script, 'list' }, {}),
+    sorter = sorters.get_fuzzy_file(),
+    previewer = previewers.new_buffer_previewer({
+      define_preview = function(self, entry)
+        return require('telescope.previewers.utils').job_maker(
+          { script, 'diff', entry.value },
+          self.state.bufnr,
+          {
+            callback = function(bufnr, content)
+              if content ~= nil then
+                local p = (require('telescope.from_entry').path(entry, true))
+                require('telescope.previewers.utils').highlighter(bufnr, require('plenary.filetype').detect(p))
+              end
             end
-        }),
-        initial_mode = "normal",
-    }, {}):find()
+          }
+        )
+      end
+    }),
+    initial_mode = "normal",
+  }, {}):find()
 end
 
 function vim.getVisualSelection()
@@ -397,6 +412,7 @@ set('n', '<leader>s', '<cmd>lua require("telescope.builtin").lsp_document_symbol
 set('n', '<leader>k', '<cmd>lua require("telescope.builtin").quickfix()<cr>', opts)
 
 M.config()
+
 EOF
 
 " null-ls
