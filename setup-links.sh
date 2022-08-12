@@ -5,10 +5,10 @@
 #ln -s $(pwd)/.zshrc ${HOME}/.zshrc
 
 mkdir -p ${HOME}/.config
-ln -s $(pwd)/.config/nvim ${HOME}/.config/nvim
 
-#mkdir -p ${HOME}/.config/fish
-#ln -s $(pwd)/.config/fish ${HOME}/.config/fish
+ln -s $(pwd)/.config/nvim ${HOME}/.config/nvim
+ln -s $(pwd)/.config/fish ${HOME}/.config/fish
+ln -s $(pwd)/.config/starship.toml ${HOME}/.config/starship.toml
 
 # TODO move this to the .config folder
 #mkdir -p ${HOME}/.config/karabiner/
