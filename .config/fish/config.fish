@@ -17,7 +17,7 @@ if status is-interactive
   fish_add_path /usr/bin
   fish_add_path /usr/sbin
 
-  source ./local-config.fish
+  source ~/.config/fish/local-config.fish
 
   # starship
   starship init fish | source

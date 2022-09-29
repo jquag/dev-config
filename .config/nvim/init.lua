@@ -76,6 +76,7 @@ require('plugins.lsp').config()
 require('plugins.nvim-tree').config()
 require('plugins.telescope').config()
 
+require('nvim-web-devicons').get_icons()
 
 -- nvim-test
 vim.v['test#strategy'] = 'neovim'
@@ -381,4 +382,7 @@ dap.configurations.elixir = {
 --      projectDir= "${workspaceFolder}"
 --    }
 --}
+
+
+vim.cmd("au BufNewFile,BufRead ~/dev/personal/robo-budget/* let b:db='postgres://robobudget:letmein@localhost:5444/robobudget'")
 

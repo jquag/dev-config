@@ -28,7 +28,7 @@ M.config = function()
                     }
                 },
                 sort_mru = true,
-                initial_mode = "normal",
+                initial_mode = "insert",
             },
             lsp_definitions = {
                 initial_mode = "normal",
