@@ -26,6 +26,7 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'anuvyklack/pretty-fold.nvim'
 Plug 'folke/trouble.nvim'
 Plug 'williamboman/mason.nvim'
+Plug 'edluffy/hologram.nvim'
 
 --Autoclosing tags and delims
 Plug 'windwp/nvim-autopairs'
@@ -77,6 +78,10 @@ require('plugins.nvim-tree').config()
 require('plugins.telescope').config()
 
 require('nvim-web-devicons').get_icons()
+
+require('hologram').setup{
+    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
+}
 
 -- nvim-test
 vim.v['test#strategy'] = 'neovim'
@@ -237,13 +242,26 @@ local cmp = require'cmp'
   local lspconfig = require('lspconfig')
 
   -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
-  local servers = { 'tsserver', 'svelte', 'vuels', 'cssls', 'gdscript' }
+  local servers = { 'svelte', 'vuels', 'cssls', 'gdscript' }
   for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup {
       on_attach = on_attach,
       capabilities = capabilities,
     }
   end
+
+  lspconfig['tsserver'].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    root_dir = lspconfig.util.root_pattern('package.json'),
+  }
+
+  lspconfig['denols'].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    root_dir = lspconfig.util.root_pattern('deno.json', 'deno.jsonc'),
+    single_file_support = false,
+  }
 
   lspconfig['elixirls'].setup {
     capabilities = capabilities,
@@ -282,31 +300,34 @@ local cmp = require'cmp'
     },
   }
 
-  cmp.setup({
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-      expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-      end,
-    },
-    mapping = cmp.mapping.preset.insert({
-        ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-        ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-        ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-        ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-        ['<C-e>'] = cmp.mapping({
-          i = cmp.mapping.abort(),
-          c = cmp.mapping.close(),
-        }),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+cmp.setup({
+  snippet = {
+    -- REQUIRED - you must specify a snippet engine
+    expand = function(args)
+      vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+    end,
+  },
+  mapping = cmp.mapping.preset.insert({
+    ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+    ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+    ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+    ['<C-e>'] = cmp.mapping({
+      i = cmp.mapping.abort(),
+      c = cmp.mapping.close(),
     }),
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'vsnip' }
-    }, {
+    ['<CR>'] = cmp.mapping.confirm({
+      select = true,
+      behavior = cmp.ConfirmBehavior.Replace,
+    }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+  }),
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'vsnip' }
+  }, {
       { name = 'buffer' },
     })
-  })
+})
 
 -------------------------------------
 -- mason.nvim (lsp server manager) --
