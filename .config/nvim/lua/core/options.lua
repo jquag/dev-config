@@ -28,16 +28,26 @@ M.config = function()
   opt.updatetime = 1000
   -- opt.conceallevel = 0
   -- opt.cmdheight = 0
+  opt.mousemodel = 'extend'
 
   vim.g.loaded_matchparen = 1
   vim.g.markdown_folding = 1
 
   -- color scheme config
   opt.background = 'dark'
-  vim.g.gruvbox_material_background = 'medium'
-  vim.g.gruvbox_material_visual = 'reverse'
-  cmd('colorscheme gruvbox-material')
-  cmd('highlight CursorLine guibg=#3f3d3b')
+
+  -- GRUVBOX
+  -- vim.g.gruvbox_material_background = 'medium'
+  -- vim.g.gruvbox_material_visual = 'reverse'
+  -- cmd('colorscheme gruvbox-material')
+  -- cmd('highlight CursorLine guibg=#3f3d3b')
+
+  -- EVERFOREST
+  cmd('colorscheme everforest')
+  cmd('highlight CursorLine guibg=#595959')
+  cmd('highlight Visual guibg=#636a6e')
+
+  cmd('highlight LineNr guifg=#abb3b8')
 end
 
 return M

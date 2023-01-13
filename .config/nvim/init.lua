@@ -21,11 +21,13 @@ Plug 'RRethy/vim-illuminate'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'klen/nvim-test'
+-- Plug 'vim-test/vim-test'
 Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'anuvyklack/pretty-fold.nvim'
 Plug 'folke/trouble.nvim'
 Plug 'williamboman/mason.nvim'
+Plug 'voldikss/vim-floaterm'
 
 --Autoclosing tags and delims
 Plug 'windwp/nvim-autopairs'
@@ -65,7 +67,6 @@ Plug 'mfussenegger/nvim-dap'
 
 vim.call('plug#end')
 
-
 vim.g.mapleader = ','
 
 require('core.globals').config()
@@ -78,20 +79,25 @@ require('plugins.telescope').config()
 
 require('nvim-web-devicons').get_icons()
 
+
 -- nvim-test
-vim.v['test#strategy'] = 'neovim'
-require('nvim-test').setup()
-require('nvim-test.runners.jest'):setup {
-  command = "jest",                                       -- a command to run the test runner
-  args = { "--collectCoverage=false" },                                       -- default arguments
-  env = { CUSTOM_VAR = 'value' },                                             -- custom environment variables
+ vim.v['test#strategy'] = 'neovim'
+ require('nvim-test').setup({})
+ require('nvim-test.runners.jest'):setup {
+   command = "jest",                                       -- a command to run the test runner
+   args = { "--collectCoverage=false" },                                       -- default arguments
+   env = { CUSTOM_VAR = 'value' },                                             -- custom environment variables
 
-  file_pattern = "\\v(__tests__/.*|(spec|test))\\.(js|jsx|coffee|ts|tsx)$",   -- determine whether a file is a testfile
-  find_files = { "{name}.test.{ext}", "{name}.spec.{ext}" },                  -- find testfile for a file
+   file_pattern = "\\v(__tests__/.*|(spec|test))\\.(js|jsx|coffee|ts|tsx)$",   -- determine whether a file is a testfile
+   find_files = { "{name}.test.{ext}", "{name}.spec.{ext}" },                  -- find testfile for a file
 
-  filename_modifier = nil,                                                    -- modify filename before tests run (:h filename-modifiers)
-  working_directory = nil,                                                    -- set working directory (cwd by default)
-}
+   filename_modifier = nil,                                                    -- modify filename before tests run (:h filename-modifiers)
+   working_directory = nil,                                                    -- set working directory (cwd by default)
+ }
+
+-- vim.g['test#strategy'] = 'neovim'
+-- vim.g['test#neovim#start_normal'] = 1
+-- vim.g['test#basic#start_normal'] = 1
 
 ----------------------
 -- pretty-fold.nvim --
@@ -323,7 +329,7 @@ require('nvim-treesitter.configs').setup {
   },
   ensure_installed = 'all',
   ignore_install = {
-    "phpdoc", "tree-sitter-phpdoc"
+    "phpdoc", "tree-sitter-phpdoc", "blueprint", "jsonc", "fusion"
   },
   sync_install = false,
   highlight = {

@@ -1,7 +1,6 @@
 tap "homebrew/bundle"
 tap "homebrew/core"
 brew "fish"
-brew "jdtls"
 brew "lazygit"
 brew "lua-language-server"
 brew "neovim", args: ["HEAD"]

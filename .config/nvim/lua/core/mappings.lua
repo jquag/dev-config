@@ -69,6 +69,14 @@ function M.config()
   set('n', '<leader>dn', ":lua require'dap'.step_over()<CR>", opts)
   set('n', '<leader>di', ":lua require'dap'.step_into()<CR>", opts)
   set('n', '<leader>do', ":lua require'dap'.step_out()<CR>", opts)
+
+  set('n', '<X1Mouse>', "<C-o>", opts)
+
+  -- floaterm
+  vim.g.floaterm_width = 0.95
+  vim.g.floaterm_height = 0.95
+  set('n', '<leader>g', ':FloatermNew lazygit<CR>', opts)
+
 end
 
 return M
