@@ -351,7 +351,15 @@ require('nvim-treesitter.configs').setup {
     enable = true,
     additional_vim_regex_highlighting = false,
   },
-  incremental_selection = { enable = true },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = '<cr>',
+      node_incremental = '<cr>',
+      scode_incremental = '<s-cr>',
+      node_decremental = '<bs>',
+    }
+  },
   textobjects = { enable = true },
   indent = {
     enable = true,
