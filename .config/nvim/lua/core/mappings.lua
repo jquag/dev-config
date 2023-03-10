@@ -46,7 +46,8 @@ function M.config()
   -- set('n', '<c-b>', ':bp<cr>', opts)
 
   -- nvim-tree
-  set('n', '<leader>t', ':NvimTreeToggle<cr>', opts)
+  -- set('n', '<leader>t', ':NvimTreeToggle<cr>', opts)
+  set('n', '<leader>t', ':Neotree toggle reveal reveal_force_cwd<cr>', opts)
 
   -- trouble
   -- set('n', '<leader>xx', ':TroubleToggle<cr>', opts)

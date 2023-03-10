@@ -1,5 +1,4 @@
 local cmd = vim.cmd
-local opts = { noremap = true, silent = true }
 local Plug = vim.fn['plug#']
 
 -------------
@@ -7,7 +6,10 @@ local Plug = vim.fn['plug#']
 -------------
 vim.call('plug#begin', '~/.config/nvim/plugged')
 
-Plug 'kyazdani42/nvim-tree.lua'
+Plug 'nvim-neo-tree/neo-tree.nvim'
+Plug 'MunifTanjim/nui.nvim'
+Plug 's1n7ax/nvim-window-picker'
+
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-abolish'
@@ -45,7 +47,7 @@ Plug 'airblade/vim-gitgutter'
 --Colorschemes
 Plug 'morhetz/gruvbox'
 Plug 'sainnhe/everforest'
-Plug 'folke/tokyonight.nvim'
+Plug 'sungkang/tokyonight.nvim'
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'sainnhe/gruvbox-material'
 Plug 'sainnhe/sonokai'
@@ -74,7 +76,7 @@ require('core.options').config()
 require('core.mappings').config()
 require('core.autocommands').config()
 require('plugins.lsp').config()
-require('plugins.nvim-tree').config()
+require('plugins.neo-tree').config()
 require('plugins.telescope').config()
 
 require('nvim-web-devicons').get_icons()
@@ -273,6 +275,11 @@ local cmp = require'cmp'
     capabilities = capabilities,
     on_attach = on_attach,
     cmd = { "jdtls" },
+  }
+
+  lspconfig['jsonls'].setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
   }
 
   lspconfig.sumneko_lua.setup {

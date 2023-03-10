@@ -2,39 +2,54 @@ local M = {}
 local CONFIG_PATH = vim.fn.stdpath('config')
 
 M.config = function()
-    local trouble = require('trouble.providers.telescope')
-    require('telescope').setup({
-        defaults = {
-            layout_strategy = 'horizontal',
-            path_display={'truncate'},
-            layout_config = {
-                prompt_position = 'top',
-                height = 0.7,
-            },
-            sorting_strategy = 'ascending',
-            mappings = {
-                n = {
-                    ["o"] = "select_default",
-                    ["q"] = "close",
-                    ["t"] = trouble.open_with_trouble,
-                },
-            }
+  local trouble = require('trouble.providers.telescope')
+  require('telescope').setup({
+    defaults = {
+      layout_strategy = 'horizontal',
+      path_display={'truncate'},
+      layout_config = {
+        prompt_position = 'top',
+        height = 0.7,
+      },
+      sorting_strategy = 'ascending',
+      mappings = {
+        n = {
+          ["o"] = "select_default",
+          ["q"] = "close",
+          ["t"] = trouble.open_with_trouble,
         },
-        pickers = {
-            buffers = {
-                mappings = {
-                    n = {
-                        ["dd"] = "delete_buffer",
-                    }
-                },
-                sort_mru = true,
-                initial_mode = "insert",
-            },
-            lsp_definitions = {
-                initial_mode = "normal",
-            }
-        }
-    })
+      }
+    },
+    pickers = {
+      find_files = {
+        hidden = true,
+        mappings = {
+          n = {
+            ["<C-c>"] = "close",
+            ["<C-n>"] = "move_selection_next",
+            ["<C-p>"] = "move_selection_previous",
+          },
+          i = {
+            ["<C-c>"] = "close",
+            ["<C-n>"] = "move_selection_next",
+            ["<C-p>"] = "move_selection_previous",
+          }
+        },
+      },
+      buffers = {
+        mappings = {
+          n = {
+            ["dd"] = "delete_buffer",
+          }
+        },
+        sort_mru = true,
+        initial_mode = "insert",
+      },
+      lsp_definitions = {
+        initial_mode = "normal",
+      }
+    }
+  })
 
 end
 

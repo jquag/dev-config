@@ -37,15 +37,23 @@ M.config = function()
   opt.background = 'dark'
 
   -- GRUVBOX
-  -- vim.g.gruvbox_material_background = 'medium'
-  -- vim.g.gruvbox_material_visual = 'reverse'
-  -- cmd('colorscheme gruvbox-material')
-  -- cmd('highlight CursorLine guibg=#3f3d3b')
+  vim.g.gruvbox_material_background = 'medium'
+  vim.g.gruvbox_material_visual = 'reverse'
+  cmd('colorscheme gruvbox-material')
+  cmd('highlight CursorLine guibg=#3f3d3b')
 
   -- EVERFOREST
-  cmd('colorscheme everforest')
-  cmd('highlight CursorLine guibg=#595959')
-  cmd('highlight Visual guibg=#636a6e')
+  -- cmd('colorscheme everforest')
+  -- cmd('highlight CursorLine guibg=#595959')
+  -- cmd('highlight Visual guibg=#636a6e')
+
+  require('tokyonight').setup({
+    styles = {
+      floats = "light",
+      popups = "light",
+    }
+  })
+  cmd('colorscheme tokyonight-moon')
 
   cmd('highlight LineNr guifg=#abb3b8')
 end

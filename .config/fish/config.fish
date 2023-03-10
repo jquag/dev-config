@@ -3,6 +3,7 @@ if status is-interactive
 
   set -gx EDITOR vim
   set -gx VISUAL vim
+  set -gx TERM xterm-256color
 
   eval $(/Users/e137516/homebrew/bin/brew shellenv)
   bass source ~/.nvm/nvm.sh
