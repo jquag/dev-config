@@ -14,8 +14,8 @@ M.config = function()
   opt.infercase = true
   opt.number = true
   opt.relativenumber = true
-  opt.tabstop = 2
-  opt.shiftwidth = 2
+  opt.tabstop = 4
+  opt.shiftwidth = 4
   opt.expandtab = true
   opt.foldenable = false
   opt.foldmethod = 'expr'
@@ -43,11 +43,18 @@ M.config = function()
   -- cmd('highlight CursorLine guibg=#3f3d3b')
 
   -- EVERFOREST
-  cmd('colorscheme everforest')
-  cmd('highlight CursorLine guibg=#595959')
-  cmd('highlight Visual guibg=#636a6e')
+  -- cmd('colorscheme everforest')
+  -- cmd('highlight CursorLine guibg=#595959')
+  -- cmd('highlight Visual guibg=#636a6e')
+
+  vim.cmd('colorscheme kanagawa-dragon')
+
+  -- vim.cmd('colorscheme desert')
 
   cmd('highlight LineNr guifg=#abb3b8')
+
+  vim.g.go_def_mode='gopls'
+  vim.g.go_info_mode='gopls'
 end
 
 return M

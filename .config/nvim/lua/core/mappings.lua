@@ -4,6 +4,8 @@ function M.config()
   local set = vim.api.nvim_set_keymap
   local opts = { noremap = true, silent = true }
 
+  set('i', '<c-j>', '<esc>', opts)
+
   -- local wk = require('which-key')
 
   -- general mappings
@@ -45,8 +47,8 @@ function M.config()
   -- set('n', '<c-f>', ':bn<cr>', opts)
   -- set('n', '<c-b>', ':bp<cr>', opts)
 
-  -- nvim-tree
-  set('n', '<leader>t', ':NvimTreeToggle<cr>', opts)
+  -- neo-tree
+  set('n', '<leader>t', ':Neotree toggle reveal reveal_force_cwd<cr>', opts)
 
   -- trouble
   -- set('n', '<leader>xx', ':TroubleToggle<cr>', opts)
@@ -56,19 +58,15 @@ function M.config()
   set('n', '<leader>jf', ":'<,'>!python3 -m json.tool<cr>", opts)
   set('v', '<leader>jf', ":'<,'>!python3 -m json.tool<cr>", opts)
 
-  -- testing
-  set('n', '<leader>rr', ':TestNearest<cr>', opts)
-  set('n', '<leader>rl', ':TestLast<cr>', opts)
-
   -- Debugger
-  set('n', '<leader>db', ":lua require'dap'.toggle_breakpoint()<CR>", opts)
-  set('n', '<leader>dd', ":lua require'dap'.terminate()<CR>:lua require'dap'.continue()<CR>:lua require'dap'.repl.open()<CR><c-w>j", opts)
-  set('n', '<leader>dc', ":lua require'dap'.continue()<CR>", opts)
-  set('n', '<leader>dr', ":lua require'dap'.repl.open()<CR>", opts)
-  set('n', '<leader>dq', ":lua require'dap'.repl.close()<CR>:lua require'dap'.terminate()<CR>", opts)
-  set('n', '<leader>dn', ":lua require'dap'.step_over()<CR>", opts)
-  set('n', '<leader>di', ":lua require'dap'.step_into()<CR>", opts)
-  set('n', '<leader>do', ":lua require'dap'.step_out()<CR>", opts)
+  set('n', '<space>db', ":lua require'dap'.toggle_breakpoint()<CR>", opts)
+  -- set('n', '<space>dd', ":lua require'dap'.terminate()<CR>:lua require'dap'.continue()<CR>:lua require'dap'.repl.open()<CR><c-w>j", opts)
+  set('n', '<space>dd', ":lua require'dap'.continue()<CR>", opts)
+  set('n', '<space>dr', ":lua require'dap'.repl.open()<CR>", opts)
+  set('n', '<space>dq', ":lua require'dap'.repl.close()<CR>:lua require'dap'.terminate()<CR>", opts)
+  set('n', '<space>dn', ":lua require'dap'.step_over()<CR>", opts)
+  set('n', '<space>di', ":lua require'dap'.step_into()<CR>", opts)
+  set('n', '<space>do', ":lua require'dap'.step_out()<CR>", opts)
 
   set('n', '<X1Mouse>', "<C-o>", opts)
 
@@ -77,6 +75,14 @@ function M.config()
   vim.g.floaterm_height = 0.95
   set('n', '<leader>g', ':FloatermNew lazygit<CR>', opts)
 
+  set('n', '<leader>q', ':FloatermNew tui-do<CR>', opts)
+
+  --testing
+  vim.keymap.set('n', '<space>ts', '<Cmd>lua require("neotest").summary.toggle()<CR>')
+  vim.keymap.set('n', '<space>to', '<Cmd>lua require("neotest").output_panel.toggle()<CR>')
+  vim.keymap.set('n', '<space>ta', '<Cmd>lua require("neotest").run.run(vim.fn.getcwd())<CR>')
+  vim.keymap.set('n', '<space>tn', '<Cmd>lua require("neotest").run.run()<CR>')
+  vim.keymap.set('n', '<space>tt', '<Cmd>lua require("neotest").run.run_last()<CR>')
 end
 
 return M

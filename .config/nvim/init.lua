@@ -1,5 +1,4 @@
 local cmd = vim.cmd
-local opts = { noremap = true, silent = true }
 local Plug = vim.fn['plug#']
 
 -------------
@@ -7,12 +6,14 @@ local Plug = vim.fn['plug#']
 -------------
 vim.call('plug#begin', '~/.config/nvim/plugged')
 
-Plug 'kyazdani42/nvim-tree.lua'
+Plug 'nvim-neo-tree/neo-tree.nvim'
+Plug 'MunifTanjim/nui.nvim'
+Plug 's1n7ax/nvim-window-picker'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-speeddating'
-Plug 'tpope/vim-commentary'
+Plug 'numToStr/Comment.nvim'
 Plug 'tpope/vim-dadbod'
 Plug 'easymotion/vim-easymotion'
 Plug 'nvim-lualine/lualine.nvim'
@@ -37,6 +38,7 @@ Plug 'windwp/nvim-ts-autotag'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'nvim-telescope/telescope-live-grep-args.nvim'
 
 --Git
 Plug 'tpope/vim-fugitive'
@@ -49,6 +51,7 @@ Plug 'folke/tokyonight.nvim'
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'sainnhe/gruvbox-material'
 Plug 'sainnhe/sonokai'
+Plug 'rebelot/kanagawa.nvim'
 
 --Autocompletion
 Plug 'neovim/nvim-lspconfig'
@@ -64,8 +67,44 @@ Plug 'hrsh7th/vim-vsnip'
 
 --Debugger
 Plug 'mfussenegger/nvim-dap'
+-- Plug 'leoluz/nvim-dap-go'
+
+
+--Testing
+Plug 'antoinemadec/FixCursorHold.nvim'
+Plug 'nvim-neotest/neotest'
+Plug 'jfpedroza/neotest-elixir'
+Plug 'nvim-neotest/neotest-jest'
+Plug 'marilari88/neotest-vitest'
+
+Plug 'fatih/vim-go'
+
+Plug 'zbirenbaum/copilot.lua'
 
 vim.call('plug#end')
+
+require('Comment').setup()
+
+require('copilot').setup({
+  suggestion = {
+    auto_trigger = true,
+    keymap = {
+      accept = "<C-y>",
+    }
+  }
+})
+
+require("neotest").setup({
+  adapters = {
+    require("neotest-elixir")({
+      dap = { justMyCode = false },
+    }),
+    require('neotest-jest')({
+      jestCommand = "jest --watch ",
+    }),
+    require('neotest-vitest')({}),
+  },
+})
 
 vim.g.mapleader = ','
 
@@ -74,7 +113,7 @@ require('core.options').config()
 require('core.mappings').config()
 require('core.autocommands').config()
 require('plugins.lsp').config()
-require('plugins.nvim-tree').config()
+require('plugins.neo-tree').config()
 require('plugins.telescope').config()
 
 require('nvim-web-devicons').get_icons()
@@ -82,17 +121,17 @@ require('nvim-web-devicons').get_icons()
 -- nvim-test
  vim.v['test#strategy'] = 'neovim'
  require('nvim-test').setup({})
- require('nvim-test.runners.jest'):setup {
-   command = "jest",                                       -- a command to run the test runner
-   args = { "--collectCoverage=false" },                                       -- default arguments
-   env = { CUSTOM_VAR = 'value' },                                             -- custom environment variables
+ -- require('nvim-test.runners.jest'):setup {
+ --   command = "jest",                                       -- a command to run the test runner
+ --   args = { "--collectCoverage=false" },                                       -- default arguments
+ --   env = { CUSTOM_VAR = 'value' },                                             -- custom environment variables
 
-   file_pattern = "\\v(__tests__/.*|(spec|test))\\.(js|jsx|coffee|ts|tsx)$",   -- determine whether a file is a testfile
-   find_files = { "{name}.test.{ext}", "{name}.spec.{ext}" },                  -- find testfile for a file
+ --   file_pattern = "\\v(__tests__/.*|(spec|test))\\.(js|jsx|coffee|ts|tsx)$",   -- determine whether a file is a testfile
+ --   find_files = { "{name}.test.{ext}", "{name}.spec.{ext}" },                  -- find testfile for a file
 
-   filename_modifier = nil,                                                    -- modify filename before tests run (:h filename-modifiers)
-   working_directory = nil,                                                    -- set working directory (cwd by default)
- }
+ --   filename_modifier = nil,                                                    -- modify filename before tests run (:h filename-modifiers)
+ --   working_directory = nil,                                                    -- set working directory (cwd by default)
+ -- }
 
 -- vim.g['test#strategy'] = 'neovim'
 -- vim.g['test#neovim#start_normal'] = 1
@@ -237,18 +276,30 @@ local cmp = require'cmp'
   })
 
   -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
   local lspconfig = require('lspconfig')
 
   -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
-  local servers = { 'svelte', 'vuels', 'cssls', 'gdscript' }
+  local servers = { 'svelte', 'vuels', 'cssls', 'gdscript', 'gopls', 'terraform_lsp', }
   for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup {
       on_attach = on_attach,
       capabilities = capabilities,
     }
   end
+
+  lspconfig['tailwindcss'].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    filetypes = { "aspnetcorerazor", "astro", "astro-markdown", "blade", "clojure", "django-html", "htmldjango", "edge", "eelixir", "elixir", "ejs", "erb", "eruby", "gohtml", "haml", "handlebars", "hbs", "html", "html-eex", "heex", "jade", "leaf", "liquid", "markdown", "mdx", "mustache", "njk", "nunjucks", "php", "razor", "slim", "twig", "css", "less", "postcss", "sass", "scss", "stylus", "sugarss", "javascript", "javascriptreact", "reason", "rescript", "typescript", "typescriptreact", "vue", "svelte", "gohtmltmpl" }
+  }
+
+  lspconfig['html'].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    filetypes = { "html", "gohtmltmpl" }
+  }
 
   lspconfig['tsserver'].setup {
     on_attach = on_attach,
@@ -275,7 +326,12 @@ local cmp = require'cmp'
     cmd = { "jdtls" },
   }
 
-  lspconfig.sumneko_lua.setup {
+  lspconfig['jsonls'].setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
+  }
+
+  lspconfig.lua_ls.setup {
     capabilities = capabilities,
     on_attach = on_attach,
     settings = {
@@ -351,7 +407,15 @@ require('nvim-treesitter.configs').setup {
     enable = true,
     additional_vim_regex_highlighting = false,
   },
-  incremental_selection = { enable = true },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = '<cr>',
+      node_incremental = '<cr>',
+      scode_incremental = '<s-cr>',
+      node_decremental = '<bs>',
+    }
+  },
   textobjects = { enable = true },
   indent = {
     enable = true,
@@ -374,7 +438,7 @@ local dap = require('dap')
 
 dap.adapters.mix_task = {
   type = 'executable',
-  command = '/Users/johnq/bin/elixir-ls/debugger.sh',
+  command = '/Users/johnq/.local/share/nvim/mason/bin/elixir-ls-debugger',
   args = {}
 }
 
@@ -392,18 +456,62 @@ dap.configurations.elixir = {
       "${relativeFile}"
     }
   },
+  {
+    type= "mix_task",
+    name= "phx.server",
+    request= "launch",
+    task= "phx.server",
+    projectDir= "${workspaceFolder}"
+  }
 }
 
---dap.configurations.elixir = {
---    {
---      type= "mix_task",
---      name= "phx.server",
---      request= "launch",
---      task= "phx.server",
---      projectDir= "${workspaceFolder}"
---    }
---}
+dap.adapters.delve = {
+  type = 'server',
+  -- port = '${port}',
+  port = '2345',
+  executable = {
+    command = 'dlv',
+    args = {'dap', '-l', '127.0.0.1:2345'},
+  }
+}
 
+-- NOTE: to attach debugger to remote process (for TUI) start the headless debugger from the root of the go app...
+-- dlv debug --headless --listen :2345 .
+
+-- https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_dap.md
+dap.configurations.go = {
+  {
+    type = "delve",
+    name = "Debug",
+    request = "launch",
+    program = "${file}"
+  },
+  {
+    type = "delve",
+    name = "Debug test", -- configuration for debugging test files
+    request = "launch",
+    mode = "test",
+    program = "${file}"
+  },
+  -- works with go.mod packages and sub packages 
+  {
+    type = "delve",
+    name = "Debug test (go.mod)",
+    request = "launch",
+    mode = "test",
+    program = "./${relativeFileDirname}"
+  },
+  {
+    name = "My remote debug",
+    type = "delve",
+    request = "attach",
+    mode = "remote",
+    remotePath = "${workspaceFolder}",
+    port = 2345,
+    host = "127.0.0.1"
+}
+}
+-- require('dap-go').setup()
 
 vim.cmd("au BufNewFile,BufRead ~/dev/personal/robo-budget/* let b:db='postgres://robobudget:letmein@localhost:5444/robobudget'")
 

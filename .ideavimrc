@@ -1,45 +1,120 @@
-source ~/.vimrc
+Plug 'michaeljsmith/vim-indent-object'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+Plug 'easymotion/vim-easymotion'
+Plug 'preservim/nerdtree'
+Plug 'vim-matchit'
 
-set surround
-set commentary
-set exchange
-
+" =========================
+" === SECTION: Settings ===
+" =========================
+set backspace=indent,eol,start
+set clipboard=unnamed
+set hlsearch
+set ignorecase
+set incsearch
+set nostartofline
+set number
+set relativenumber
+set ruler
+set showcmd
+set showmode
+set smartcase
+set timeoutlen=400
 set easymotion
 
-set vim-indent-object
+" =========================
+" === SECTION: Mappings ===
+" =========================
+let mapleader=","
 
-" === Section: IDEAVIM actions ===
+map <leader><esc> :set nohls<cr>
+
+
+" === Configuration ===
 noremap <leader>ev :vs ~/.ideavimrc<cr>
-noremap <leader>vv :vs ~/.vimrc<cr>
-noremap <leader>sv :action IdeaVim.ReloadVimRc.reload<cr>
-noremap <leader>rr :action RecentProjectListGroup<cr>
-nnoremap ]m :action MethodDown<cr>
-nnoremap [m :action MethodUp<cr>
-nnoremap <leader>ss :action FileStructurePopup<cr>
-nnoremap <leader>rn :action RenameElement<cr>
-nnoremap <leader>t :action TypeScript.Restart.Service<cr>
+map <leader>vv <Action>(IdeaVim.ReloadVimRc.reload)
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap <leader>, ,
+map ]m <Action>(MethodDown)
+map [m <Action>(MethodUp)
+map ]t <Action>(NextTab)
+map [t <Action>(PreviousTab)
+
+map ]d <Action>(GotoNextError)
+map [d <Action>(GotoPreviousError)
+
+map ]c <Action>(VcsShowNextChangeMarker)
+map [c <Action>(VcsShowPrevChangeMarker)
+
+map <space>hp <Action>(VcsShowCurrentChangeMarker)
+map <space>hu <Action>(Vcs.RollbackChangedLines)
+
+" === Windows and Tabs ===
+map <c-h> <c-w>h
+map <c-j> <c-w>j
+map <c-k> <c-w>k
+map <c-l> <c-w>l
+nnoremap + 5<c-w>>
+nnoremap _ 5<c-w><
+nnoremap <c-.> 5<c-w><
+nnoremap <c-,> 5<c-w><
+
+" === Jump List ===
+map <C-o> <Action>(Back)
+map <C-i> <Action>(Forward)
+
+" === Search ===
+nnoremap <silent> <leader>/ :noh<cr>
+
+"map <silent> <leader>t <Action>(ActivateProjectToolWindow)
+map <silent> <leader>t <Action>(SelectInProjectView)
+
+
+" === Project Management ===
+map <leader>s <Action>(FileStructurePopup)
+
+" === FileChooser ===
+map <leader>o <Action>(GotoFile)
+map <leader>f <Action>(FindInPath)
+map <leader>b <Action>(RecentFiles)
+
+" === LSP ===
+map gr <Action>(GotoDeclaration)
+map <space>e <Action>(ShowErrorDescription)
 
 " === Debugging ===
-nnoremap <space><space> :action DebugMainMenu<cr>
-nnoremap <space>dd :action Debug<cr>
-nnoremap <space>dn :action DebugClass<cr>
+map <space><space> <Action>(ChooseRunConfiguration)
+map <space>dd <Action>(Debug)
+map <space>dn <Action>(DebugClass)
 
-nnoremap <space>rn :action RunClass<cr>
-nnoremap <space>rr :action Rerun<cr>
+map <space>ru <Action>(RunClass)
+map <space>rr <Action>(Rerun)
 
-nnoremap <space>bb :action ToggleLineBreakpoint<cr>
-nnoremap <space>BB :action ViewBreakpoints<cr>
-nnoremap <space>rab :action Debugger.RemoveAllBreakpoints<cr>
+map <space>ru <Action>(Run)
+map <space>st <Action>(Stop)
 
-" === Go ===
-nnoremap <leader>gf :action GoFmtFileAction<cr>
+map <space>bb <Action>(ToggleLineBreakpoint)
+map <space>BB <Action>(ViewBreakpoints)
+map <space>rab <Action>(Debugger.RemoveAllBreakpoints)
+
+" === Formatting and Refactor ===
+map <space>f <Action>(ReformatCode)
+map <space>rn <Action>(RenameElement)
 
 " === Git ===
-nnoremap <leader>gga :action Annotate<cr>
+map <space>ga <Action>(Annotate)
+map <leader>g <Action>(ActivateCommitToolWindow)
 
 " === Section: window management ===
-noremap <leader>ca :action CloseAllEditorsButActive<cr>
-noremap <leader>vs :action MoveTabRight<cr>
-noremap <leader>vv :action MoveEditorToOppositeTabGroup<cr>
-noremap <leader>ff :action HideAllWindows<cr>
+map <C-s>z <Action>(HideAllWindows)
+map <C-w><C-o> <Action>(CloseAllEditorsButActive)
+map vs <Action>(MoveTabRight)
+map vm <Action>(MoveEditorToOppositeTabGroup)
+
+" === Folding ===
+
+map <space>t <Action>(ActivateTerminalToolWindow)
+
 set ideajoin
