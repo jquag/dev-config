@@ -13,9 +13,9 @@ if status is-interactive
   fish_add_path ~/go/bin
   fish_add_path ~/.local/share/nvim/mason/bin
   fish_add_path ~/dev/tools/google-cloud-sdk/bin
+  fish_add_path /opt/homebrew/bin
 
   fish_vi_key_bindings
-  source ~/.config/fish/local-config.fish
 
   # starship
   starship init fish | source
@@ -28,5 +28,7 @@ if status is-interactive
   set -x NVM_DIR ~/.nvm
   nvm use default --silent
 
-  bass source /usr/local/opt/asdf/libexec/asdf.sh
+  if test -e /usr/local/opt/asdf/libexec/asdf.sh
+    bass source /usr/local/opt/asdf/libexec/asdf.sh
+  end
 end

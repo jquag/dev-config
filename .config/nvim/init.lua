@@ -119,8 +119,8 @@ require('plugins.telescope').config()
 require('nvim-web-devicons').get_icons()
 
 -- nvim-test
- vim.v['test#strategy'] = 'neovim'
- require('nvim-test').setup({})
+ -- vim.v['test#strategy'] = 'neovim'
+ -- require('nvim-test').setup({})
  -- require('nvim-test.runners.jest'):setup {
  --   command = "jest",                                       -- a command to run the test runner
  --   args = { "--collectCoverage=false" },                                       -- default arguments
@@ -160,11 +160,10 @@ require('nvim-autopairs').setup {}
 ----------------------------
 -- indent blankline setup --
 ----------------------------
-require("indent_blankline").setup {
-  show_current_context = true,
-  show_current_context_start = false,
+require("ibl").setup {
 }
-vim.cmd('highlight IndentBlanklineContextChar guifg=#88aeb2 gui=nocombine')
+
+-- vim.cmd('highlight IndentBlanklineContextChar guifg=#88aeb2 gui=nocombine')
 
 
 ------------------
