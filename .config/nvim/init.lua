@@ -280,7 +280,7 @@ local cmp = require'cmp'
   local lspconfig = require('lspconfig')
 
   -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
-  local servers = { 'svelte', 'vuels', 'cssls', 'gdscript', 'gopls', 'terraform_lsp', }
+  local servers = { 'svelte', 'vuels', 'cssls', 'gdscript', 'gopls', 'terraform_lsp', 'pyright'}
   for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup {
       on_attach = on_attach,

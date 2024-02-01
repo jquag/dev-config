@@ -83,6 +83,8 @@ function M.config()
   vim.keymap.set('n', '<space>ta', '<Cmd>lua require("neotest").run.run(vim.fn.getcwd())<CR>')
   vim.keymap.set('n', '<space>tn', '<Cmd>lua require("neotest").run.run()<CR>')
   vim.keymap.set('n', '<space>tt', '<Cmd>lua require("neotest").run.run_last()<CR>')
+
+  set('n', '<c-f>', '<Cmd>silent !tmux neww tmux-sessionizer<CR>', opts)
 end
 
 return M
