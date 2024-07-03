@@ -69,7 +69,7 @@ map <C-i> <Action>(Forward)
 nnoremap <silent> <leader>/ :noh<cr>
 
 "map <silent> <leader>t <Action>(ActivateProjectToolWindow)
-map <silent> <leader>t <Action>(SelectInProjectView)
+map <silent> <leader>o <Action>(SelectInProjectView)
 
 
 " === Project Management ===
@@ -79,6 +79,11 @@ map <leader>s <Action>(FileStructurePopup)
 map <leader>o <Action>(GotoFile)
 map <leader>f <Action>(FindInPath)
 map <leader>b <Action>(RecentFiles)
+map <leader>t :NERDTreeFind<cr>
+
+" === Copilot ===
+map <leader>cd <Action>(copilot.disableCopilot)
+map <leader>ce <Action>(copilot.enableCopilot)
 
 " === LSP ===
 map gr <Action>(GotoDeclaration)

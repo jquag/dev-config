@@ -1,7 +1,7 @@
 local M = {}
 
 function M.config()
-  local set = vim.api.nvim_set_keymap
+  local set = vim.keymap.set
   local opts = { noremap = true, silent = true }
 
   set('i', '<c-j>', '<esc>', opts)
@@ -47,9 +47,6 @@ function M.config()
   -- set('n', '<c-f>', ':bn<cr>', opts)
   -- set('n', '<c-b>', ':bp<cr>', opts)
 
-  -- neo-tree
-  set('n', '<leader>t', ':Neotree toggle reveal reveal_force_cwd<cr>', opts)
-
   -- trouble
   -- set('n', '<leader>xx', ':TroubleToggle<cr>', opts)
   -- set('n', '<leader>xw', ':Trouble workspace_diagnostics<cr>', opts)
@@ -70,12 +67,13 @@ function M.config()
 
   set('n', '<X1Mouse>', "<C-o>", opts)
 
-  -- floaterm
-  vim.g.floaterm_width = 0.95
-  vim.g.floaterm_height = 0.95
-  set('n', '<leader>g', ':FloatermNew lazygit<CR>', opts)
+	-- lazy.nvim
+  set('n', '<leader>l', '<Cmd>Lazy<CR>', opts)
 
-  set('n', '<leader>q', ':FloatermNew tui-do<CR>', opts)
+	----------------
+  -- inlay hints
+  ----------------
+  set('n', '<leader>ih', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, opts)
 
   --testing
   vim.keymap.set('n', '<space>ts', '<Cmd>lua require("neotest").summary.toggle()<CR>')
@@ -85,6 +83,9 @@ function M.config()
   vim.keymap.set('n', '<space>tt', '<Cmd>lua require("neotest").run.run_last()<CR>')
 
   set('n', '<c-f>', '<Cmd>silent !tmux neww tmux-sessionizer<CR>', opts)
+
+	--harpoon
+	set('n', '<space>a', '<Cmd>lua require("harpoon.mark").add_file()<CR>', opts)
 end
 
 return M

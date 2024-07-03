@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 
 M.config = function()
   vim.cmd('au BufRead * autocmd BufWinEnter * ++once normal! zx zR')
