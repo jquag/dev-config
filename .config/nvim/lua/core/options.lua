@@ -35,7 +35,9 @@ M.config = function()
 
   -- color scheme config
   opt.background = 'dark'
-  cmd('highlight LineNr guifg=#abb3b8')
+
+	opt.exrc = true      -- Allow project-specific config files
+	opt.secure = true    -- Restrict commands that are allowed in local config files
 end
 
 return M

@@ -19,6 +19,7 @@ require('core.globals').config()
 require('core.options').config()
 require('core.mappings').config()
 require('core.autocommands').config()
+require('custom')
 
 -----------
 -- plugins

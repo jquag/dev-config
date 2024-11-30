@@ -19,7 +19,9 @@ return {
       'nvim-telescope/telescope-live-grep-args.nvim',
     },
     config = function()
-      local trouble = require('trouble.providers.telescope')
+      local set = vim.keymap.set
+      local opts = { noremap = true, silent = true }
+      local trouble = require('trouble.sources.telescope')
       local lga_actions = require('telescope-live-grep-args.actions')
 
       require('telescope').setup({
@@ -37,7 +39,7 @@ return {
             n = {
               ["o"] = "select_default",
               ["q"] = "close",
-              ["t"] = trouble.open_with_trouble,
+              ["t"] = trouble.open,
             },
           }
         },
@@ -113,28 +115,14 @@ return {
               },
             }
           },
-          -- the plugin currently doesn't support this
-          harpoon = {
-            initial_mode = "insert",
-            -- path_display = { 'truncate' },
-            mappings = {
-              n = {
-                ["dd"] = "delete_buffer",
-              }
-            },
-          }
-        }
+				},
       })
 
       -- extensions
-      require('telescope').load_extension('harpoon')
       require('telescope').load_extension('live_grep_args')
 
       -- mappings
-      local set = vim.keymap.set
-      local opts = { noremap = true, silent = true }
-
-      set('n', 'gd', '<cmd>lua require("telescope.builtin").lsp_definitions()<cr>', opts)
+      -- local set = vim.keymap.set
       set('n', 'gr', '<cmd>lua require("telescope.builtin").lsp_references()<cr>', opts)
       set('n', '<leader>o', '<cmd>lua require("telescope.builtin").find_files()<cr>', opts)
 
@@ -158,7 +146,6 @@ return {
       set('n', '<leader>h', '<cmd>lua require("telescope.builtin").help_tags()<cr>', opts)
       set('n', '<leader>s', '<cmd>lua require("telescope.builtin").lsp_document_symbols()<cr>', opts)
       set('n', '<leader>k', '<cmd>lua require("telescope.builtin").quickfix()<cr>', opts)
-      set('n', '<space>m', '<cmd>Telescope harpoon marks initial_mode=normal<cr>', opts)
     end
   },
 }

@@ -20,6 +20,7 @@ function M.config()
   set('n', '<c-d>', '<c-d>zz', opts)
   set('n', '<c-u>', '<c-u>zz', opts)
   -- set('n', '<leader>,', ',', opts)
+  set('n', '<c-n>', '<c-^>', opts)
 
   -- window management
   set('n', '<c-h>', '<c-w>h', opts)
@@ -86,6 +87,9 @@ function M.config()
 
 	--harpoon
 	set('n', '<space>a', '<Cmd>lua require("harpoon.mark").add_file()<CR>', opts)
+
+	-- todo-list
+	set('n', '<leader>d', '<Cmd>:lua Todo()<CR>')
 end
 
 return M

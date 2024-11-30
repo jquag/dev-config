@@ -1,11 +1,14 @@
 return {
   {
     'rebelot/kanagawa.nvim',
-    enabled = false,
+    enabled = true,
     lazy = false,
     priority = 1000,
     config = function()
       vim.cmd('colorscheme kanagawa')
+			vim.cmd('highlight LineNr guifg=#b8b8b8')
+			vim.cmd('highlight CursorLine guibg=#3f3d3b')
+			vim.cmd('highlight Visual guibg=#666080')
     end
   },
   {
@@ -37,7 +40,7 @@ return {
   },
   {
     'sainnhe/everforest',
-    enabled = true,
+    enabled = false,
     config = function()
       vim.g.everforest_background = 'medium'
       vim.cmd('colorscheme everforest')

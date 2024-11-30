@@ -27,6 +27,7 @@ return {
 				bset(bufnr, 'n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
 				bset(bufnr, 'n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
 				bset(bufnr, 'n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
+				bset(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
 				require('illuminate').on_attach(client)
 			end
 
@@ -40,7 +41,7 @@ return {
 				on_attach(client, bufnr)
 			end
 
-			local servers = { 'volar', 'tsserver', 'svelte', 'lua_ls', 'gopls', 'cssls', 'gdscript', 'pyright', 'tailwindcss', 'elixirls' }
+			local servers = { 'volar', 'ts_ls', 'svelte', 'lua_ls', 'gopls', 'cssls', 'gdscript', 'pyright', 'tailwindcss', 'elixirls', 'clangd', 'jdtls', 'rust_analyzer' }
 			for _, lsp in pairs(servers) do
 				local config = {
 					on_attach = on_attach,
@@ -66,7 +67,7 @@ return {
 					-- config.on_attach = with_null_ls_formatter
 				end
 
-				if lsp == 'tsserver' then
+				if lsp == 'ts_ls' then
 					config.settings = {
 						typescript = {
 							inlayHints = {
@@ -137,6 +138,9 @@ return {
 	},
 	{
 		'nvimtools/none-ls.nvim',
+		dependencies = {
+			"nvimtools/none-ls-extras.nvim",
+		},
 		config = function()
 			local bset = vim.api.nvim_buf_set_keymap
 			local opts = { noremap = true, silent = true }
@@ -146,6 +150,7 @@ return {
 				sources = {
 					null_ls.builtins.formatting.prettier,
 					null_ls.builtins.formatting.sql_formatter,
+					require("none-ls.diagnostics.eslint_d"),
 				},
 				on_attach = function(client, bufnr)
 					bset(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
