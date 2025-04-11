@@ -1,91 +1,168 @@
 return {
-	{
-		"mfussenegger/nvim-dap",
-		dependencies = {
-			"rcarriga/nvim-dap-ui",
-			"theHamsta/nvim-dap-virtual-text",
-			"nvim-neotest/nvim-nio",
-			"williamboman/mason.nvim",
-		},
-		config = function()
-			local dap = require "dap"
-			local ui = require "dapui"
+  {
+    "mfussenegger/nvim-dap",
+    dependencies = {
+      "leoluz/nvim-dap-go",
+      "rcarriga/nvim-dap-ui",
+      -- "nvim-neotest/nvim-nio",
+      "theHamsta/nvim-dap-virtual-text",
+      -- "williamboman/mason.nvim",
+    },
+    config = function()
+      local dap = require("dap")
+      local ui = require("dapui")
 
-			require("dapui").setup()
+      local function find_env_file()
+        local current_dir = vim.fn.getcwd()
+        local env_file = '.env'
 
-			local elixir_ls_debugger = vim.fn.exepath "elixir-ls-debugger"
-			if elixir_ls_debugger ~= "" then
-				dap.adapters.mix_task = {
-					type = "executable",
-					command = elixir_ls_debugger,
-				}
+        while current_dir ~= '/' do
+          local env_path = current_dir .. '/' .. env_file
+          if vim.fn.filereadable(env_path) == 1 then
+            return env_path
+          end
+          current_dir = vim.fn.fnamemodify(current_dir, ':h')
+        end
+        return nil
+      end
 
-				dap.configurations.elixir = {
-					{
-						type = "mix_task",
-						name = "phoenix server",
-						task = "phx.server",
-						request = "launch",
-						projectDir = "${workspaceFolder}",
-						exitAfterTaskReturns = false,
-						debugAutoInterpretAllModules = false,
-					},
-				}
-			end
+      -- Function to load the .env file
+      local function load_env_file(file_path)
+        local env_vars = {}
+        for line in io.lines(file_path) do
+          local key, value = line:match("^(.-)=(.*)$")
+          if key and value then
+            env_vars[key] = value
+          end
+        end
+        return env_vars
+      end
 
-			dap.adapters.node2 = {
-				type = 'executable',
-				command = 'node',
-				args = {'/Users/johnq/.local/share/nvim/mason/bin/node-debug2-adapter'},
-			}
+      -- Locate and load the .env file
+      local env_file_path = find_env_file()
+      local env_vars = {}
+      if env_file_path then
+        env_vars = load_env_file(env_file_path)
+      else
+        print('.env file not found in project root or parent directories')
+      end
 
-			dap.configurations.javascript = {
-				{
-					name = 'Launch',
-					type = 'node2',
-					request = 'launch',
-					program = '${file}',
-					cwd = vim.fn.getcwd(),
-					sourceMaps = true,
-					protocol = 'inspector',
-					console = 'integratedTerminal',
-				},
-				{
-					-- For this to work you need to make sure the node process is started with the `--inspect` flag.
-					name = 'Attach to process',
-					type = 'node2',
-					request = 'attach',
-					processId = require 'dap.utils'.pick_process,
-				},
-			}
+      ui.setup()
 
-			vim.keymap.set("n", "<space>b", dap.toggle_breakpoint)
-			vim.keymap.set("n", "<space>gb", dap.run_to_cursor)
+      require("dap-go").setup({
+        dap_configurations = {
+          {
+            type = "go",
+            name = "Debug Go",
+            request = "launch",
+            program = "${fileDirname}",
+            env = env_vars,
+          },
+          {
+            type = "go",
+            name = "Attach to TUI",
+            mode = "remote",
+            request = "attach",
+            port = 43000, -- default port used by `dlv dap`
+            host = "127.0.0.1",
+          },
+        }
+      })
 
-			-- Eval var under cursor
-			vim.keymap.set("n", "<space>?", function()
-				require("dapui").eval(nil, { enter = true })
-			end)
+      local adapters = {
+        -- node = {
+        --   adapter = {
+        --     type = 'executable',
+        --     command = 'node-debug2-adapter',
+        --     args = {},
+        --   },
+        --   config = {
+        --     type = 'node',
+        --     name = 'node debugger',
+        --   },
+        -- },
+        -- go = {
+        --   adapter = {
+        --     type = 'server',
+        --     port = '${port}',
+        --     executable = {
+        --       command = 'dlv',
+        --       args = { 'dap', '--log', '-l', '127.0.0.1:${port}' },
+        --     },
+        --   },
+        --   config = {
+        --     {
+        --       type = "go",
+        --       name = "Debug",
+        --       request = "launch",
+        --       program = "${file}",
+        --     },
+        --     {
+        --       type = "go",
+        --       name = "Debug test", -- configuration for debugging test files
+        --       request = "launch",
+        --       mode = "test",
+        --       program = "${file}",
+        --     },
+        --     -- works with go.mod packages and sub packages
+        --     {
+        --       type = "go",
+        --       name = "Debug test (go.mod)",
+        --       request = "launch",
+        --       mode = "test",
+        --       program = "./${relativeFileDirname}",
+        --     },
+        --   },
+        -- }
+      }
 
-			vim.keymap.set("n", "<F1>", dap.continue)
-			vim.keymap.set("n", "<F2>", dap.step_into)
-			vim.keymap.set("n", "<F3>", dap.step_over)
-			vim.keymap.set("n", "<F4>", dap.step_out)
-			vim.keymap.set("n", "<F5>", dap.step_back)
-			vim.keymap.set("n", "<F13>", dap.restart)
+      for key, value in pairs(adapters) do
+        dap.adapters[key] = value.adapter
+        dap.configurations[key] = value.config
+      end
 
-			dap.listeners.before.attach.dapui_config = function()
-				ui.open()
-			end
-			dap.listeners.before.launch.dapui_config = function()
-				ui.open()
-			end
-			dap.listeners.before.event_terminated.dapui_config = function()
-				ui.close()
-			end
-			dap.listeners.before.event_exited.dapui_config = function()
-				ui.close()
-			end
-		end,
-	},
+      require("nvim-dap-virtual-text").setup()
+
+      vim.keymap.set("n", "<space>db", dap.toggle_breakpoint)
+      vim.keymap.set("n", "<space>dd", ui.toggle)
+      vim.keymap.set("n", "<space>dc", dap.continue)
+      vim.keymap.set("n", "<space>dt", dap.terminate)
+      vim.keymap.set("n", "<space>dh", dap.run_to_cursor)
+      vim.keymap.set("n", "<space>do", dap.step_over)
+      vim.keymap.set("n", "<space>di", dap.step_into)
+      vim.keymap.set("n", "<space>du", dap.step_out)
+
+      -- Eval var under cursor
+      vim.keymap.set("n", "<space>dv", function()
+        require("dapui").eval(nil, { enter = true })
+      end)
+
+      vim.keymap.set("n", "<F9>", dap.continue)
+      vim.keymap.set("n", "<F8>", dap.step_over)
+      vim.keymap.set("n", "<F7>", dap.step_into)
+      vim.keymap.set("n", "<S-F7>", dap.step_out)
+      vim.keymap.set("n", "<F5>", dap.step_back)
+      vim.keymap.set("n", "<F12>", dap.restart)
+
+
+      --------------------------------
+      -- nvim-dap-ui event handlers --
+      --------------------------------
+      dap.listeners.before.attach.dapui_config = function()
+        ui.open()
+      end
+
+      dap.listeners.before.launch.dapui_config = function()
+        ui.open()
+      end
+
+      dap.listeners.before.event_terminated.dapui_config = function()
+        ui.close()
+      end
+
+      dap.listeners.before.event_exited.dapui_config = function()
+        ui.close()
+      end
+    end,
+  },
 }

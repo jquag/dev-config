@@ -1,6 +1,6 @@
 if status is-interactive
     set -gx TERM xterm-256color
-    set -gx EDITOR vim
+    set -gx EDITOR nvim
     set -gx VISUAL vim
     set -xg XDG_CONFIG_HOME ~/.config
     set -xg XDG_DATA_HOME ~/.local/share
@@ -17,6 +17,7 @@ if status is-interactive
     fish_add_path /opt/homebrew/bin
     fish_add_path ~/.local/bin
 		fish_add_path /opt/homebrew/opt/erlang@24/bin
+		fish_add_path ~/.magento-cloud/bin
 
     # vim mode
     fish_vi_key_bindings
@@ -36,17 +37,21 @@ if status is-interactive
     set -x NVM_DIR ~/.nvm
     nvm use default --silent
 
-    # if test -e /usr/local/opt/asdf/libexec/asdf.sh
-    #     bass source /usr/local/opt/asdf/libexec/asdf.sh
-    # end
-
 		source /opt/homebrew/opt/asdf/libexec/asdf.fish
 
-    if command -q tmux; and test -z "$TMUX"
-        tmux attach -t default; or tmux new -s default
-    end
+    #if command -q tmux; and test -z "$TMUX"
+    #    tmux attach -t default; or tmux new -s default
+    #end
 
 		source "$HOME/.cargo/env.fish"
+
+		function nvm_auto_use --on-variable PWD
+				if test -f .nvmrc
+						nvm use
+				end
+		end
+
+	[ -f /opt/homebrew/share/autojump/autojump.fish ]; and source /opt/homebrew/share/autojump/autojump.fish
 end
 
 # The next line updates PATH for the Google Cloud SDK.

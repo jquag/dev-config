@@ -114,7 +114,6 @@ return {
 		end,
 	},
 	'leoluz/nvim-dap-go',
-	'akinsho/toggleterm.nvim',
 	'tpope/vim-surround',
 	'tpope/vim-repeat',
 	'tpope/vim-fugitive',
@@ -127,22 +126,9 @@ return {
 			vim.g.gitgutter_grep = 'rg'
 		end
 	},
-	'tommcdo/vim-exchange',
 	'michaeljsmith/vim-indent-object',
 	{
-		enabled = false,
-		'lukas-reineke/indent-blankline.nvim',
-		config = function()
-			require("ibl").setup {}
-			vim.cmd('highlight IndentBlanklineContextChar guifg=#88aeb2 gui=nocombine')
-		end
-	},
-	{
 		'windwp/nvim-autopairs',
-		config = true,
-	},
-	{
-		'folke/neodev.nvim',
 		config = true,
 	},
 	{
@@ -189,4 +175,22 @@ return {
 	{
 		"rest-nvim/rest.nvim",
 	},
+	{
+		'kristijanhusak/vim-dadbod-ui',
+		dependencies = {
+			{ 'tpope/vim-dadbod',                     lazy = true },
+			{ 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true }, -- Optional
+		},
+		cmd = {
+			'DBUI',
+			'DBUIToggle',
+			'DBUIAddConnection',
+			'DBUIFindBuffer',
+		},
+		init = function()
+			-- Your DBUI configuration
+			vim.g.db_ui_use_nerd_fonts = 1
+		end,
+	},
+	'nvim-treesitter/nvim-treesitter-textobjects',
 }

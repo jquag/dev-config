@@ -79,8 +79,8 @@ return {
       }):find()
     end
 
-    set('n', '<space>m', function() toggle_telescope(harpoon:list()) end, opts)
-    set('n', '<Space>a', function() harpoon:list():add() end, opts)
+    set('n', '<space>mm', function() toggle_telescope(harpoon:list()) end, opts)
+    set('n', '<Space>ma', function() harpoon:list():add() end, opts)
     set("n", "<C-S-P>", function() harpoon:list():prev() end, opts)
     set("n", "<C-S-N>", function() harpoon:list():next() end, opts)
   end,

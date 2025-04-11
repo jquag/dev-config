@@ -56,16 +56,6 @@ function M.config()
   set('n', '<leader>jf', ":'<,'>!python3 -m json.tool<cr>", opts)
   set('v', '<leader>jf', ":'<,'>!python3 -m json.tool<cr>", opts)
 
-  -- Debugger
-  set('n', '<space>db', ":lua require'dap'.toggle_breakpoint()<CR>", opts)
-  -- set('n', '<space>dd', ":lua require'dap'.terminate()<CR>:lua require'dap'.continue()<CR>:lua require'dap'.repl.open()<CR><c-w>j", opts)
-  set('n', '<space>dd', ":lua require'dap'.continue()<CR>", opts)
-  set('n', '<space>dr', ":lua require'dap'.repl.open()<CR>", opts)
-  set('n', '<space>dq', ":lua require'dap'.repl.close()<CR>:lua require'dap'.terminate()<CR>", opts)
-  set('n', '<space>dn', ":lua require'dap'.step_over()<CR>", opts)
-  set('n', '<space>di', ":lua require'dap'.step_into()<CR>", opts)
-  set('n', '<space>do', ":lua require'dap'.step_out()<CR>", opts)
-
   set('n', '<X1Mouse>', "<C-o>", opts)
 
 	-- lazy.nvim

@@ -11,6 +11,8 @@ return {
 			local bset = vim.api.nvim_buf_set_keymap
 			local opts = { noremap = true, silent = true }
 
+			vim.diagnostic.config({ virtual_text = true })
+
 			local on_attach = function(client, bufnr)
 				bset(bufnr, 'n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
 				bset(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
@@ -41,7 +43,7 @@ return {
 				on_attach(client, bufnr)
 			end
 
-			local servers = { 'volar', 'ts_ls', 'svelte', 'lua_ls', 'gopls', 'cssls', 'gdscript', 'pyright', 'tailwindcss', 'elixirls', 'clangd', 'jdtls', 'rust_analyzer' }
+			local servers = { 'volar', 'ts_ls', 'svelte', 'lua_ls', 'gopls', 'cssls', 'gdscript', 'pyright', 'tailwindcss', 'elixirls', 'clangd', 'jdtls', 'rust_analyzer', 'intelephense' }
 			for _, lsp in pairs(servers) do
 				local config = {
 					on_attach = on_attach,
@@ -148,9 +150,9 @@ return {
 
 			null_ls.setup {
 				sources = {
-					null_ls.builtins.formatting.prettier,
-					null_ls.builtins.formatting.sql_formatter,
-					require("none-ls.diagnostics.eslint_d"),
+					-- null_ls.builtins.formatting.prettier,
+					-- null_ls.builtins.formatting.sql_formatter,
+					require("none-ls.diagnostics.eslint"),
 				},
 				on_attach = function(client, bufnr)
 					bset(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)

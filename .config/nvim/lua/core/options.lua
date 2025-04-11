@@ -1,7 +1,6 @@
 local M = {}
 
 M.config = function()
-  local cmd = vim.cmd
   local opt = vim.opt
 
   vim.g.mapleader = ','
@@ -20,15 +19,19 @@ M.config = function()
   opt.foldenable = false
   opt.foldmethod = 'expr'
   opt.foldexpr = 'nvim_treesitter#foldexpr()'
+	opt.foldlevelstart = 99
+	opt.foldlevel = 99
   opt.timeoutlen = 1000
   opt.ttimeoutlen = 10
   opt.termguicolors = true
   opt.mouse = 'nvi'
+	opt.mousescroll = 'ver:1,hor:6'
   opt.signcolumn = 'yes'
   opt.updatetime = 1000
   -- opt.conceallevel = 0
   -- opt.cmdheight = 0
   opt.mousemodel = 'extend'
+	opt.winminwidth = 10 
 
   vim.g.loaded_matchparen = 1
   vim.g.markdown_folding = 1
@@ -38,6 +41,9 @@ M.config = function()
 
 	opt.exrc = true      -- Allow project-specific config files
 	opt.secure = true    -- Restrict commands that are allowed in local config files
+
+	opt.splitbelow = true
+	opt.splitright = true
 end
 
 return M
