@@ -18,8 +18,8 @@ function YankTargetLine(_)
   vim.api.nvim_win_set_cursor(0, orig_pos)
 end
 
-vim.keymap.set('n', 'yr', function()
-	_G._yank_orig_pos = vim.api.nvim_win_get_cursor(0)
-  vim.go.operatorfunc = 'v:lua.YankTargetLine'
-  return 'g@'
-end, { expr = true, noremap = true })
+-- vim.keymap.set('n', 'yr', function()
+-- 	_G._yank_orig_pos = vim.api.nvim_win_get_cursor(0)
+--   vim.go.operatorfunc = 'v:lua.YankTargetLine'
+--   return 'g@'
+-- end, { expr = true, noremap = true })

@@ -1,5 +1,6 @@
 return {
 	'nvim-lua/plenary.nvim',
+	'mfussenegger/nvim-jdtls',
 	{
 		'vim-test/vim-test',
 		config = function()
@@ -33,6 +34,14 @@ return {
 			})
 
 			cmp.setup({
+				window = {
+					completion = cmp.config.window.bordered({
+						border = "rounded", -- options: "single", "double", "shadow", "rounded"
+					}),
+					documentation = cmp.config.window.bordered({
+						border = "rounded",
+					}),
+				},
 				preselect = cmp.PreselectMode.None,
 				snippet = {
 					expand = function(args)
@@ -53,24 +62,6 @@ return {
 						-- behavior = cmp.ConfirmBehavior.Replace,
 						select = true,
 					},
-					-- ['<Tab>'] = function(fallback)
-					--   if cmp.visible() then
-					--     cmp.select_next_item()
-					--   elseif luasnip.expand_or_jumpable() then
-					--     luasnip.expand_or_jump()
-					--   else
-					--     fallback()
-					--   end
-					-- end,
-					-- ['<S-Tab>'] = function(fallback)
-					--   if cmp.visible() then
-					--     cmp.select_prev_item()
-					--   elseif luasnip.jumpable(-1) then
-					--     luasnip.jump(-1)
-					--   else
-					--     fallback()
-					--   end
-					-- end,
 				},
 				sources = cmp.config.sources({
 					{ name = 'luasnip' },
@@ -138,6 +129,7 @@ return {
 	{
 		'zbirenbaum/copilot.lua',
 		lazy = true,
+		enabled = false,
 		event = 'InsertEnter',
 		config = function()
 			require('copilot').setup({
@@ -174,6 +166,14 @@ return {
 	},
 	{
 		"rest-nvim/rest.nvim",
+		config = function()
+			require('rest-nvim').setup({
+				request = {
+					-- Skip SSL verification
+					skip_ssl_verification = true,
+				}
+			})
+		end,
 	},
 	{
 		'kristijanhusak/vim-dadbod-ui',
@@ -193,4 +193,76 @@ return {
 		end,
 	},
 	'nvim-treesitter/nvim-treesitter-textobjects',
+	{
+		"folke/noice.nvim",
+		enabled = false,
+		event = "VeryLazy",
+		opts = {
+			-- add any options here
+		},
+		dependencies = {
+			-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+			"MunifTanjim/nui.nvim",
+			-- OPTIONAL:
+			--   `nvim-notify` is only needed, if you want to use the notification view.
+			--   If not available, we use `mini` as the fallback
+			"rcarriga/nvim-notify",
+		},
+		config = function()
+			require("noice").setup({
+				lsp = {
+					-- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+					override = {
+						["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+						["vim.lsp.util.stylize_markdown"] = true,
+						["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+					},
+				},
+				-- you can enable a preset for easier configuration
+				presets = {
+					bottom_search = true,    -- use a classic bottom cmdline for search
+					command_palette = true,  -- position the cmdline and popupmenu together
+					long_message_to_split = true, -- long messages will be sent to a split
+					inc_rename = false,      -- enables an input dialog for inc-rename.nvim
+					lsp_doc_border = false,  -- add a border to hover docs and signature help
+				},
+			})
+		end,
+	},
+	{
+		"supermaven-inc/supermaven-nvim",
+		config = function()
+			require("supermaven-nvim").setup({
+				keymaps = {
+					accept_suggestion = "<Tab>",
+					clear_suggestion = "<C-]>",
+					accept_word = "<C-y>",
+				},
+			})
+		end,
+	},
+	{
+		"coder/claudecode.nvim",
+		dependencies = { "folke/snacks.nvim" },
+		config = true,
+		keys = {
+			{ "<leader>a",  nil,                              desc = "AI/Claude Code" },
+			{ "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
+			{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>",       desc = "Focus Claude" },
+			{ "<leader>ar", "<cmd>ClaudeCode --resume<cr>",   desc = "Resume Claude" },
+			{ "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+			{ "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+			{ "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>",       desc = "Add current buffer" },
+			{ "<leader>as", "<cmd>ClaudeCodeSend<cr>",        mode = "v",                  desc = "Send to Claude" },
+			{
+				"<leader>as",
+				"<cmd>ClaudeCodeTreeAdd<cr>",
+				desc = "Add file",
+				ft = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
+			},
+			-- Diff management
+			{ "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
+		},
+	}
 }

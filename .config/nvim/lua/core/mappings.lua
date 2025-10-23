@@ -80,6 +80,14 @@ function M.config()
 
 	-- todo-list
 	set('n', '<leader>d', '<Cmd>:lua Todo()<CR>')
+
+	-- rest
+	set('n', '<space>rr', '<Cmd>Rest run<CR>', opts)
+
+	-- claude reference copying
+	set('n', '<leader>c', '<Cmd>:lua CopyClaudeReference()<CR>', opts)
+	set('v', '<leader>c', '<Cmd>:lua CopyClaudeReferenceWithSelection()<CR>', opts)
+	set('x', '<leader>c', '<Cmd>:lua CopyClaudeReferenceWithLineRange()<CR>', opts)
 end
 
 return M

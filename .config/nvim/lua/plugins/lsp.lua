@@ -15,21 +15,22 @@ return {
 
 			local on_attach = function(client, bufnr)
 				bset(bufnr, 'n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-				bset(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
+				bset(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover({ border = 'rounded'})<cr>", opts)
 				bset(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
 				bset(bufnr, 'n', '<c-p>', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
 				bset(bufnr, 'n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<cr>', opts)
 				bset(bufnr, 'n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<cr>', opts)
 				bset(bufnr, 'n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<cr>', opts)
 				bset(bufnr, 'n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-				bset(bufnr, 'n', '<space>c', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+				bset(bufnr, 'n', '<space>c', "<cmd>lua vim.lsp.buf.code_action({ border = 'rounded' })<cr>", opts)
 				bset(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
 				bset(bufnr, 'v', '<space>f', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-				bset(bufnr, 'n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
+				bset(bufnr, 'n', '<space>e', "<cmd>lua vim.diagnostic.open_float({ border = 'rounded'})<cr>", opts)
 				bset(bufnr, 'n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
 				bset(bufnr, 'n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
 				bset(bufnr, 'n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
 				bset(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
+				bset(bufnr, "n", "<space>ll", "<cmd>LspRestart<cr>", opts)
 				require('illuminate').on_attach(client)
 			end
 
@@ -43,7 +44,24 @@ return {
 				on_attach(client, bufnr)
 			end
 
-			local servers = { 'volar', 'ts_ls', 'svelte', 'lua_ls', 'gopls', 'cssls', 'gdscript', 'pyright', 'tailwindcss', 'elixirls', 'clangd', 'jdtls', 'rust_analyzer', 'intelephense' }
+			local servers = {
+				'ts_ls',
+				'svelte',
+				'lua_ls',
+				'gopls',
+				'cssls',
+				'gdscript',
+				'pyright',
+				'tailwindcss',
+				'elixirls',
+				'clangd',
+				'jdtls',
+				'rust_analyzer',
+				'intelephense',
+				'html',
+				'r_language_server',
+			}
+
 			for _, lsp in pairs(servers) do
 				local config = {
 					on_attach = on_attach,
@@ -54,26 +72,19 @@ return {
 				}
 
 				if lsp == 'elixirls' then
-					config.cmd = {"/Users/johnq/.local/share/nvim/mason/bin/elixir-ls"}
+					config.cmd = { "/Users/johnq/.local/share/nvim/mason/bin/elixir-ls" }
 				end
 
-				if lsp == 'volar' then
-					if is_npm_package_installed 'vue' then
-						config.on_attach = with_null_ls_formatter
-						-- config.filetypes = { 'typescript', 'javascript', 'vue', 'json' }
-					end
-				end
-
-				if lsp == 'svelte' then
-					config.root_dir = nvim_lsp.util.root_pattern('svelte.config.js')
-					-- config.on_attach = with_null_ls_formatter
-				end
+				-- if lsp == 'svelte' then
+				-- 	config.root_dir = nvim_lsp.util.root_pattern('svelte.config.js')
+				-- 	-- config.on_attach = with_null_ls_formatter
+				-- end
 
 				if lsp == 'ts_ls' then
 					config.settings = {
 						typescript = {
 							inlayHints = {
-								includeInlayParameterNameHints = "all",   -- 'none' | 'literals' | 'all'
+								includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
 								includeInlayParameterNameHintsWhenArgumentMatchesName = true,
 								includeInlayVariableTypeHints = true,
 								includeInlayFunctionParameterTypeHints = true,
@@ -85,7 +96,7 @@ return {
 						},
 						javascript = {
 							inlayHints = {
-								includeInlayParameterNameHints = "all",   -- 'none' | 'literals' | 'all'
+								includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
 								includeInlayParameterNameHintsWhenArgumentMatchesName = true,
 								includeInlayVariableTypeHints = true,
 
@@ -98,9 +109,9 @@ return {
 						},
 					}
 
-					config.root_dir = function(startpath)
-						return nvim_lsp.util.root_pattern('package.json')(startpath)
-					end
+					-- config.root_dir = function(startpath)
+					-- 	return nvim_lsp.util.root_pattern('package.json')(startpath)
+					-- end
 
 					config.single_file_support = false
 					-- config.on_attach = with_null_ls_formatter
@@ -133,8 +144,21 @@ return {
 					config.on_attach = with_null_ls_formatter
 				end
 
-				nvim_lsp[lsp].setup(config)
-				::continue::
+				if lsp == 'rust_analyzer' then
+					config.flags = {
+						allow_incremental_sync = true,
+					}
+				end
+
+				if lsp == 'r_language_server' then
+					config.cmd = { "/usr/local/bin/R", "--slave", "-e", "languageserver::run()" }
+				end
+
+				-- old way
+				-- nvim_lsp[lsp].setup(config)
+
+				vim.lsp.config(lsp, config)
+				vim.lsp.enable(lsp)
 			end
 		end
 	},

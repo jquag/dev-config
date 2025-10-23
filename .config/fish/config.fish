@@ -18,6 +18,8 @@ if status is-interactive
     fish_add_path ~/.local/bin
 		fish_add_path /opt/homebrew/opt/erlang@24/bin
 		fish_add_path ~/.magento-cloud/bin
+		fish_add_path /opt/homebrew/opt/ruby/bin
+		fish_add_path /opt/homebrew/opt/openjdk@21/bin
 
     # vim mode
     fish_vi_key_bindings
@@ -56,3 +58,4 @@ end
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/johnq/tools/google-cloud-sdk/path.fish.inc' ]; . '/Users/johnq/tools/google-cloud-sdk/path.fish.inc'; end
+

@@ -34,7 +34,7 @@ M.config = function()
 	opt.winminwidth = 10 
 
   vim.g.loaded_matchparen = 1
-  vim.g.markdown_folding = 1
+  -- vim.g.markdown_folding = 1
 
   -- color scheme config
   opt.background = 'dark'
