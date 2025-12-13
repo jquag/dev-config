@@ -6,11 +6,54 @@ return {
       "nvim-neotest/nvim-nio",
       "theHamsta/nvim-dap-virtual-text",
       "igorlfs/nvim-dap-view",
+      "mxsdev/nvim-dap-vscode-js",
     },
     config = function()
       local dap = require("dap")
       local dv = require("dap-view")
       require('dap-go').setup()
+
+      -- Enable DAP logging for debugging issues
+      dap.set_log_level('TRACE')
+
+      -- Node.js/Jest debugging setup
+      require("dap-vscode-js").setup({
+        debugger_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter",
+        adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" },
+      })
+
+      -- Jest configuration
+      for _, language in ipairs({ "typescript", "javascript" }) do
+        dap.configurations[language] = {
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Debug Jest Tests",
+            runtimeExecutable = "node",
+            runtimeArgs = {
+              "./node_modules/jest/bin/jest.js",
+              "--runInBand",
+            },
+            rootPath = "${workspaceFolder}",
+            cwd = "${workspaceFolder}",
+            console = "integratedTerminal",
+          },
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Debug Jest Current File",
+            runtimeExecutable = "node",
+            runtimeArgs = {
+              "./node_modules/jest/bin/jest.js",
+              "--runInBand",
+              "${file}",
+            },
+            rootPath = "${workspaceFolder}",
+            cwd = "${workspaceFolder}",
+            console = "integratedTerminal",
+          },
+        }
+      end
 
       vim.api.nvim_set_hl(0, "DapRed", { fg = "#d31617" })
       vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DapRed", numhl = "DiagnosticError" })

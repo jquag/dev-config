@@ -59,3 +59,4 @@ end
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/johnq/tools/google-cloud-sdk/path.fish.inc' ]; . '/Users/johnq/tools/google-cloud-sdk/path.fish.inc'; end
 
+

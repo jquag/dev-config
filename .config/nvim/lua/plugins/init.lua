@@ -90,11 +90,6 @@ return {
 	},
 	'RRethy/vim-illuminate',
 	{
-		'mfussenegger/nvim-dap',
-		config = function()
-		end
-	},
-	{
 		'fatih/vim-go',
 		enabled = false,
 		config = function()
@@ -104,7 +99,6 @@ return {
 			-- vim.g.go_gopls_enabled = 0
 		end,
 	},
-	'leoluz/nvim-dap-go',
 	'tpope/vim-surround',
 	'tpope/vim-repeat',
 	'tpope/vim-fugitive',

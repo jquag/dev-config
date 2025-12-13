@@ -13,6 +13,10 @@ function M.config()
 
   -- jump to normal mode in terminal
   set('t', '<c-\\><c-\\>', '<c-\\><c-n>', opts)
+  set('t', '<c-h><c-h>', '<c-\\><c-n><c-w>h', opts)
+  set('t', '<c-l><c-l>', '<c-\\><c-n><c-w>l', opts)
+  set('t', '<c-j><c-j>', '<c-\\><c-n><c-w>j', opts)
+  set('t', '<c-k><c-k>', '<c-\\><c-n><c-w>k', opts)
 
   -- navigation and search
   set('n', 'L', 'Lzz', opts)
@@ -37,12 +41,12 @@ function M.config()
   set('n', ']t', ':tabn<cr>', opts)
 
   -- resize splits
-  -- (vertical)
-  set('n', '_', '5<c-w><', opts)
-  set('n', '+', '5<c-w>>', opts)
+ -- (vertical)
+  set('n', '<c-left>', '5<c-w><', opts)
+  set('n', '<c-right>', '5<c-w>>', opts)
   -- (horizontal)
-  set('n', '<c-w><c-_>', '5<c-w>-', opts)
-  set('n', '<c-w><c-=>', '5<c-w>+', opts)
+  set('n', '<a-down>', '5<c-w>-', opts)
+  set('n', '<a-up>', '5<c-w>+', opts)
 
   -- buffers
   -- set('n', '<c-f>', ':bn<cr>', opts)
@@ -84,10 +88,11 @@ function M.config()
 	-- rest
 	set('n', '<space>rr', '<Cmd>Rest run<CR>', opts)
 
-	-- claude reference copying
-	set('n', '<leader>c', '<Cmd>:lua CopyClaudeReference()<CR>', opts)
-	set('v', '<leader>c', '<Cmd>:lua CopyClaudeReferenceWithSelection()<CR>', opts)
-	set('x', '<leader>c', '<Cmd>:lua CopyClaudeReferenceWithLineRange()<CR>', opts)
+	-- ai reference sending
+	set('n', '<space>io', '<Cmd>:lua SendAiReference("opencode")<CR>', opts)
+	set('v', '<space>io', '<Cmd>:lua SendAiRefWithLineRange("opencode")<CR>', opts)
+	set('n', '<space>ic', '<Cmd>:lua SendAiReference("claude")<CR>', opts)
+	set('v', '<space>ic', '<Cmd>:lua SendAiRefWithLineRange("claude")<CR>', opts)
 end
 
 return M

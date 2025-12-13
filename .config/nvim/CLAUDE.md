@@ -4,68 +4,86 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a sophisticated Neovim configuration using Lua with a modular structure:
+Neovim configuration using Lua with a modular structure:
 
-- **Entry Point**: `init.lua` bootstraps lazy.nvim and loads core modules
-- **Core Configuration**: `lua/core/` contains essential Neovim settings (options, mappings, autocommands, globals)
-- **Plugin Management**: `lua/plugins/` with individual plugin configuration files using lazy.nvim
-- **Custom Utilities**: `lua/custom/` contains personal helper functions that auto-load via `init.lua`
-- **Shared Utils**: `lua/utils.lua` provides common utility functions
+- **Entry Point**: `init.lua` bootstraps lazy.nvim, sets leader key (`,`), loads core modules and custom utilities
+- **Core Configuration**: `lua/core/` - options, mappings, autocommands, globals (loaded in that order)
+- **Plugin Specs**: `lua/plugins/` - individual lazy.nvim plugin configuration files
+- **Custom Utilities**: `lua/custom/` - auto-loaded personal helper functions
+- **Shared Utils**: `lua/utils.lua` - common utility functions (JSON parsing, path shortening, etc.)
 
 ## Plugin Management
 
-Uses **lazy.nvim** as the plugin manager. Plugin versions are locked in `lazy-lock.json` for reproducibility.
+Uses **lazy.nvim**. Plugin versions locked in `lazy-lock.json`.
 
-Key plugin categories:
-- **LSP**: nvim-lspconfig with 15+ language servers (TypeScript, Go, Rust, Python, etc.)
-- **Completion**: nvim-cmp with LSP, buffer, path, and snippet sources
-- **File Navigation**: telescope.nvim with live grep args extension
-- **Testing**: neotest with Go, Jest, Playwright, and Vitest adapters
-- **Git**: vim-fugitive, vim-gitgutter, snacks.nvim (lazygit integration)
-- **Debugging**: nvim-dap with Go debugger support
+Key categories:
+- **LSP**: nvim-lspconfig with Mason for server management
+- **Completion**: nvim-cmp (LuaSnip > LSP > buffer > path priority)
+- **File Navigation**: telescope.nvim with live grep args, neo-tree (floating), oil.nvim
+- **Testing**: neotest with Go, Jest, Playwright, Vitest adapters
+- **Git**: vim-fugitive, vim-gitgutter, snacks.nvim (lazygit via `<leader>g`)
+- **Debugging**: nvim-dap with Go and JavaScript/TypeScript support
 
-## Key Configuration Details
+## Key Mappings Reference
 
-### Leader Key and Mappings
-- **Leader**: `,` (comma)
-- **Testing**: `<space>t*` mappings for neotest operations
-- **LSP**: `gd` (definition), `gr` (references), `<space>f` (format), `<space>c` (code actions)
-- **Custom**: `<leader>d` opens todo list in floating window
+### Leader (`,`) Mappings
+| Key | Action |
+|-----|--------|
+| `<leader>o` | Find files (opens dirs in Oil) |
+| `<leader>f` | Live grep with args |
+| `<leader>b` | Buffer picker |
+| `<leader>t` | Toggle neo-tree |
+| `<leader>d` | Todo list (floating `.todo.md`) |
+| `<leader>g` | Lazygit |
+| `<leader>z` | Zen mode |
+| `<leader>ih` | Toggle inlay hints |
+| `<leader>c` | Copy Claude reference (`@path`) |
+| `<leader>jf` | Format JSON (visual) |
 
-### Custom Functions
-- **`Todo()`**: Opens `.todo.md` in floating window (mapped to `<leader>d`)
-- **`OpenFileInFloatingWindow()`**: Creates floating windows for file editing
-- **Remote clipboard utilities**: yankremote.lua for cross-system clipboard operations
+### Space Mappings
+| Key | Action |
+|-----|--------|
+| `<space>f` | Format (LSP) |
+| `<space>c` | Code actions |
+| `<space>rn` | Rename |
+| `<space>e` | Show diagnostics |
+| `<space>ts` | Test summary |
+| `<space>tn` | Run nearest test |
+| `<space>ta` | Run all tests |
+| `<space>bb` | Toggle breakpoint |
+| `<space>dc` | Debug continue |
+| `<space>a` | Add to Harpoon |
+| `<space>mm` | Harpoon picker |
 
-### Language Support
-Comprehensive LSP setup for: TypeScript/JavaScript (with inlay hints), Vue, Svelte, Lua, Go, CSS, Python, Tailwind, Elixir, C/C++, Java, Rust, PHP.
+### LSP Navigation
+`gd` (definition), `gr` (references), `gt` (type definition), `gi` (implementation), `K` (hover)
 
-## Development Workflow
+## Custom Utilities
 
-### Testing
-- Use neotest with `<space>t` mappings
-- Supports Go, Jest, Playwright, and Vitest test frameworks
-- Run tests at file, function, or project level
+Located in `lua/custom/`, auto-loaded by `custom/init.lua`:
 
-### Formatting and Linting
-- LSP-based formatting with `<space>f`
-- ESLint integration via none-ls
-- Mason manages LSP servers, formatters, and linters
+- **todo.lua**: `Todo()` - floating window for `.todo.md`
+- **windowutil.lua**: `OpenFileInFloatingWindow()` - reusable floating window creator
+- **claude_reference.lua**: Copy file references with optional line ranges
+- **numberutils.lua**: `:Sum` and `:Avg` commands for selected numbers
+- **yankremote.lua**: Cross-system clipboard operations
 
-### File Navigation
-- `<leader>o` for file finder
-- `<leader>f` for live grep with args
-- `<leader>b` for buffer switching
-- Neo-tree and Oil for file exploration
+## Important Files
 
-## Important Files to Understand
+1. **`lua/core/mappings.lua`**: All key mappings
+2. **`lua/plugins/lsp.lua`**: LSP config including TypeScript inlay hints and none-ls setup
+3. **`lua/plugins/init.lua`**: Base plugins and nvim-cmp completion config
+4. **`lua/custom/init.lua`**: Auto-loader for custom modules
+5. **`lazy-lock.json`**: Plugin version locks (commit when updating plugins)
 
-When making changes:
-1. **`lua/core/mappings.lua`**: Contains all key mappings - critical for understanding workflow
-2. **`lua/plugins/lsp.lua`**: LSP configuration with language-specific settings
-3. **`lua/custom/init.lua`**: Auto-loads custom utilities
-4. **`lazy-lock.json`**: Plugin version locks - commit changes to this file when updating plugins
+## Configuration Conventions
 
-## Theme and UI
+- Plugin specs return tables directly (no separate config files)
+- Global functions for custom commands (e.g., `Todo`, `CopyClaudeReference`)
+- Buffer-local keymaps via `nvim_buf_set_keymap`
+- `CONFIG_PATH` global variable available for path references
+- Tabs: 2 spaces, no expansion (`tabstop=2, expandtab=false`)
 
-Currently uses Catppuccin Mocha theme. Alternative themes (Kanagawa, Tokyo Night, Gruvbox Material, Everforest) are available but disabled in `lua/plugins/colorschemes.lua`.
+## Theme
+
+Catppuccin Mocha (active). Alternatives available but disabled in `lua/plugins/colorschemes.lua`.
