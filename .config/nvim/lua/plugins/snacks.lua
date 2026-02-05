@@ -67,7 +67,7 @@ return {
 			},
 			input = { enabled = false },
 			notifier = {
-				enabled = true,
+				enabled = false,
 				timeout = 3000,
 			},
 			quickfile = { enabled = true },

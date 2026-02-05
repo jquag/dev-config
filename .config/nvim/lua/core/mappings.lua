@@ -42,8 +42,8 @@ function M.config()
 
   -- resize splits
  -- (vertical)
-  set('n', '<c-left>', '5<c-w><', opts)
-  set('n', '<c-right>', '5<c-w>>', opts)
+  set('n', '_', '5<c-w><', opts)
+  set('n', '+', '5<c-w>>', opts)
   -- (horizontal)
   set('n', '<a-down>', '5<c-w>-', opts)
   set('n', '<a-up>', '5<c-w>+', opts)
@@ -91,8 +91,11 @@ function M.config()
 	-- ai reference sending
 	set('n', '<space>io', '<Cmd>:lua SendAiReference("opencode")<CR>', opts)
 	set('v', '<space>io', '<Cmd>:lua SendAiRefWithLineRange("opencode")<CR>', opts)
-	set('n', '<space>ic', '<Cmd>:lua SendAiReference("claude")<CR>', opts)
-	set('v', '<space>ic', '<Cmd>:lua SendAiRefWithLineRange("claude")<CR>', opts)
+	set('n', '<space>ii', '<Cmd>:lua SendAiReference("claude")<CR>', opts)
+	set('v', '<space>ii', '<Cmd>:lua SendAiRefWithLineRange("claude")<CR>', opts)
+
+	-- git
+	set('n', '<space>gg', '<Cmd>:tab Git<CR>', opts)
 end
 
 return M

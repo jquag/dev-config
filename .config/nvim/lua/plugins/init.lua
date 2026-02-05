@@ -1,4 +1,8 @@
 return {
+	{
+		"andymass/vim-matchup",
+		event = "BufReadPost",
+	},
 	'nvim-lua/plenary.nvim',
 	'mfussenegger/nvim-jdtls',
 	{
@@ -142,8 +146,18 @@ return {
 		ft = { "markdown" },
 		build = function() vim.fn["mkdp#util#install"]() end,
 	},
+  {
+    "brenoprata10/nvim-highlight-colors",
+    enabled = true,
+    config = function()
+      require("nvim-highlight-colors").setup({
+        enable_tailwind = true,
+      })
+    end,
+  },
 	{
 		"norcalli/nvim-colorizer.lua",
+		enabled = false,
 		config = function()
 			require('colorizer').setup({
 				'css',
@@ -258,5 +272,12 @@ return {
 			{ "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
 			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
 		},
-	}
+	},
+  {
+    "sindrets/diffview.nvim",
+    enabled = true,
+    config = function()
+      vim.keymap.set("n", "<space>do", ":DiffviewOpen<CR>")
+    end,
+  },
 }

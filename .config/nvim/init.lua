@@ -32,11 +32,6 @@ require("lazy").setup(
   }
 )
 
------------------------------------------------
--- enable jumping between <tags></tags> with %
------------------------------------------------
-vim.cmd('runtime macros/matchit.vim')
-
 ---------------
 -- code fences
 ---------------

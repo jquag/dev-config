@@ -44,6 +44,8 @@ M.config = function()
 
 	opt.splitbelow = true
 	opt.splitright = true
+
+	opt.scrolloff = 5
 end
 
 return M
