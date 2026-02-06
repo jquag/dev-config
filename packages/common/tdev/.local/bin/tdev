@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# --- Helper functions ---
+
+usage() {
+    cat >&2 <<'EOF'
+Usage: tdev <command> [args]
+
+Commands:
+    new  <task-name>    Create a worktree + tmux window for a task
+    kill [task-name]    Remove worktree and kill tmux window (infers task from cwd)
+    list                List active tasks for the current repo
+EOF
+    exit 1
+}
+
+require_git_repo() {
+    if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+        echo "Error: not inside a git repository" >&2
+        exit 1
+    fi
+}
+
+require_tmux() {
+    if ! command -v tmux &>/dev/null; then
+        echo "Error: tmux not found on PATH" >&2
+        exit 1
+    fi
+}
+
+repo_dir_name() {
+    local toplevel
+    toplevel="$(git worktree list --porcelain | head -1 | sed 's/^worktree //')"
+    local base
+    base="$(basename "$toplevel")"
+    local short_hash
+    short_hash="$(echo "$toplevel" | shasum | cut -c1-7)"
+    echo "${base}-${short_hash}"
+}
+
+worktree_path() {
+    local task_name="$1"
+    local worktree_base="${XDG_DATA_HOME:-$HOME/.local/share}/tdev/worktrees"
+    echo "${worktree_base}/$(repo_dir_name)/${task_name}"
+}
+
+detect_current_task() {
+    local worktree_base="${XDG_DATA_HOME:-$HOME/.local/share}/tdev/worktrees"
+    local cwd
+    cwd="$(pwd)"
+
+    # Check if cwd is under the tdev worktree base for this repo
+    local repo_wt_dir="${worktree_base}/$(repo_dir_name)"
+    if [[ "$cwd" == "$repo_wt_dir"/* ]]; then
+        # Strip the repo worktree dir prefix, then take the first path component
+        local relative="${cwd#"$repo_wt_dir"/}"
+        echo "${relative%%/*}"
+        return 0
+    fi
+
+    return 1
+}
+
+# --- Subcommands ---
+
+cmd_new() {
+    if [[ $# -ne 1 ]]; then
+        echo "Usage: tdev new <task-name>" >&2
+        exit 1
+    fi
+
+    local task_name="$1"
+
+    require_git_repo
+    require_tmux
+
+    local wt_path
+    wt_path="$(worktree_path "$task_name")"
+
+    mkdir -p "$(dirname "$wt_path")"
+    git worktree add "$wt_path"
+
+    if [[ -n "${TMUX:-}" ]]; then
+        # Already inside tmux — create a new window
+        tmux new-window -n "$task_name" -c "$wt_path"
+        tmux split-window -h -c "$wt_path"
+        tmux resize-pane -t :.1 -x 30%
+        tmux send-keys -t :.1 'claude' C-m
+        tmux send-keys -t :.2 "${EDITOR:-vim}" C-m
+        tmux select-pane -t :.1
+    else
+        # Not inside tmux — create a new session
+        local session_name
+        session_name="$(basename "$(pwd)")"
+        tmux new-session -d -s "$session_name" -n "$task_name" -c "$wt_path"
+        tmux split-window -h -t "$session_name:$task_name" -c "$wt_path"
+        tmux resize-pane -t "$session_name:$task_name.1" -x 30%
+        tmux send-keys -t "$session_name:$task_name.1" 'claude' C-m
+        tmux send-keys -t "$session_name:$task_name.2" "${EDITOR:-vim}" C-m
+        tmux select-pane -t "$session_name:$task_name.1"
+        tmux attach-session -t "$session_name"
+    fi
+}
+
+cmd_kill() {
+    local task_name
+
+    if [[ $# -eq 1 ]]; then
+        task_name="$1"
+    elif [[ $# -eq 0 ]]; then
+        require_git_repo
+        task_name="$(detect_current_task)" || {
+            echo "Error: not inside a tdev worktree. Usage: tdev kill [task-name]" >&2
+            exit 1
+        }
+    else
+        echo "Usage: tdev kill [task-name]" >&2
+        exit 1
+    fi
+
+    require_git_repo
+
+    local wt_path
+    wt_path="$(worktree_path "$task_name")"
+
+    # cd to the main worktree so removal works even if run from inside the target
+    local main_wt
+    main_wt="$(git worktree list --porcelain | head -1 | sed 's/^worktree //')"
+    cd "$main_wt"
+
+    # Remove worktree (git refuses if there are uncommitted changes)
+    if git worktree list --porcelain | grep -q "$wt_path"; then
+        git worktree remove "$wt_path"
+    else
+        echo "Warning: worktree not found for task '$task_name'" >&2
+    fi
+
+    # Kill tmux window (best-effort)
+    if [[ -n "${TMUX:-}" ]]; then
+        tmux kill-window -t ":$task_name" 2>/dev/null || echo "Warning: tmux window '$task_name' not found" >&2
+    else
+        echo "Warning: not in tmux, skipping window cleanup" >&2
+    fi
+}
+
+cmd_list() {
+    require_git_repo
+
+    local worktree_base="${XDG_DATA_HOME:-$HOME/.local/share}/tdev/worktrees"
+    local repo_dir="${worktree_base}/$(repo_dir_name)"
+
+    if [[ ! -d "$repo_dir" ]]; then
+        echo "No tasks found" >&2
+        return
+    fi
+
+    local found=false
+    for entry in "$repo_dir"/*/; do
+        [[ -d "$entry" ]] || continue
+        basename "$entry"
+        found=true
+    done
+
+    if [[ "$found" == false ]]; then
+        echo "No tasks found" >&2
+    fi
+}
+
+# --- Main dispatch ---
+
+if [[ $# -eq 0 ]]; then
+    usage
+fi
+
+command="$1"
+shift
+
+case "$command" in
+    new)  cmd_new "$@" ;;
+    kill) cmd_kill "$@" ;;
+    list) cmd_list "$@" ;;
+    *)    usage ;;
+esac
