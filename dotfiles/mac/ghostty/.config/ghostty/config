@@ -1,0 +1,7 @@
+font-family = "MonoLisa2 Nerd Font"
+font-size = 12
+font-thicken
+theme = Ayu Mirage
+shell-integration = fish
+
+app-notifications = true

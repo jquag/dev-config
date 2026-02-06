@@ -1,0 +1,11 @@
+"$schema" = "https://yazi-rs.github.io/schemas/keymap.json"
+
+[mgr]
+prepend_keymap = [
+{ on = [ "g", "j" ], run = "plugin autojump", desc = "Jump via autojump" },
+]
+
+append_keymap = [
+  { on = [ "g", "i" ], run = "cd ~/Library/'Mobile Documents'", desc = "Go to iCloud" },
+  { on = [ "g", "r" ], run = "cd /", desc = "Go to root" },
+]
