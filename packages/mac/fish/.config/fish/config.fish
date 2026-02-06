@@ -1,11 +1,10 @@
 if status is-interactive
     set -gx TERM xterm-256color
     set -gx EDITOR nvim
-    set -gx VISUAL vim
+    set -gx VISUAL nvim
     set -xg XDG_CONFIG_HOME ~/.config
     set -xg XDG_DATA_HOME ~/.local/share
     set -xg XDG_STATE_HOME ~/.local/state
-    # set -xg TMUX_CONF_LOCAL ~/.config/tmux/tmux.conf.local
 
     fish_add_path /usr/local/opt/erlang@24/bin
     fish_add_path /usr/local/bin

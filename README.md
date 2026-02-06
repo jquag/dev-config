@@ -1,6 +1,25 @@
 # dev-config
-developer worstation config files and scripts
+
+Configuration files for my development environments.
 
 ## initialize
 
-Run ```./setup-links.sh``` to create sym links to dot files in your home directory.
+Use `stow` to create symlinks to the files in this repository.
+
+_Symlink common config files_
+
+```bash
+stow -t ~ -d common *
+```
+
+_Symlink MacOS specific files_
+
+```bash
+stow -t ~ -d mac *
+```
+
+_Symlink Linux specific files_
+
+```bash
+stow -t ~ -d linux *
+```
