@@ -1,26 +1,29 @@
 function fisher --argument-names cmd --description "A plugin manager for Fish"
     set --query fisher_path || set --local fisher_path $__fish_config_dir
-    set --local fisher_version 4.3.5
+    set --local fisher_version 4.4.8
     set --local fish_plugins $__fish_config_dir/fish_plugins
 
     switch "$cmd"
         case -v --version
             echo "fisher, version $fisher_version"
         case "" -h --help
-            echo "Usage: fisher install <plugins...>  Install plugins"
-            echo "       fisher remove  <plugins...>  Remove installed plugins"
-            echo "       fisher update  <plugins...>  Update installed plugins"
-            echo "       fisher update                Update all installed plugins"
-            echo "       fisher list    [<regex>]     List installed plugins matching regex"
+            echo "Usage: fisher install   <plugins...>  Install plugins"
+            echo "       fisher remove    <plugins...>  Remove installed plugins" 
+            echo "       fisher uninstall <plugins...>  Remove installed plugins (alias)" 
+            echo "       fisher update    <plugins...>  Update installed plugins"
+            echo "       fisher update                  Update all installed plugins"
+            echo "       fisher list    [<regex>]       List installed plugins matching regex"
             echo "Options:"
-            echo "       -v or --version  Print version"
-            echo "       -h or --help     Print this help message"
+            echo "       -v, --version  Print version"
+            echo "       -h, --help     Print this help message"
             echo "Variables:"
             echo "       \$fisher_path  Plugin installation path. Default: $__fish_config_dir" | string replace --regex -- $HOME \~
         case ls list
             string match --entire --regex -- "$argv[2]" $_fisher_plugins
-        case install update remove
+        case install update remove uninstall
             isatty || read --local --null --array stdin && set --append argv $stdin
+
+            test "$cmd" = uninstall && set cmd remove
 
             set --local install_plugins
             set --local update_plugins
@@ -29,7 +32,7 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
             set --local old_plugins $_fisher_plugins
             set --local new_plugins
 
-            test -e $fish_plugins && set --local file_plugins (string match --regex -- '^[^\s]+$' <$fish_plugins)
+            test -e $fish_plugins && set --local file_plugins (string match --regex -- '^[^\s]+$' <$fish_plugins | string replace -- \~ ~)
 
             if ! set --query argv[2]
                 if test "$cmd" != update
@@ -38,10 +41,12 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
                     echo "fisher: \"$fish_plugins\" file not found: \"$cmd\"" >&2 && return 1
                 end
                 set arg_plugins $file_plugins
+            else if test "$cmd" = install && ! set --query old_plugins[1] 
+                set --append arg_plugins $file_plugins
             end
 
             for plugin in $arg_plugins
-                test -e "$plugin" && set plugin (realpath $plugin)
+                set plugin (test -e "$plugin" && realpath $plugin || string lower -- $plugin)
                 contains -- "$plugin" $new_plugins || set --append new_plugins $plugin
             end
 
@@ -80,12 +85,13 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
                 set --local source (command mktemp -d)
                 set --append source_plugins $source
 
-                command mkdir -p $source/{completions,conf.d,functions}
+                command mkdir -p $source/{completions,conf.d,themes,functions}
 
                 $fish_path --command "
                     if test -e $plugin
                         command cp -Rf $plugin/* $source
                     else
+                        set resp (command mktemp)
                         set temp (command mktemp -d)
                         set repo (string split -- \@ $plugin) || set repo[2] HEAD
 
@@ -98,8 +104,13 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
 
                         echo Fetching (set_color --underline)\$url(set_color normal)
 
-                        if curl --silent -L \$url | tar -xzC \$temp -f - 2>/dev/null
+                        set http (command curl -q --silent -L -o \$resp -w %{http_code} \$url)
+
+                        if test \"\$http\" = 200 && command tar -xzC \$temp -f \$resp 2>/dev/null
                             command cp -Rf \$temp/*/* $source
+                        else if test \"\$http\" = 403
+                            echo fisher: GitHub API rate limit exceeded \(HTTP 403\) >&2
+                            command rm -rf $source
                         else
                             echo fisher: Invalid plugin name or host unavailable: \\\"$plugin\\\" >&2
                             command rm -rf $source
@@ -134,11 +145,12 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
                         for name in (string replace --filter --regex -- '.+/conf\.d/([^/]+)\.fish$' '$1' $$plugin_files_var)
                             emit {$name}_uninstall
                         end
-                        printf "%s\n" Removing\ (set_color red --bold)$plugin(set_color normal) "         "$$plugin_files_var
+                        printf "%s\n" Removing\ (set_color red --bold)$plugin(set_color normal) "         "$$plugin_files_var | string replace -- \~ ~
                         set --erase _fisher_plugins[$index]
                     end
 
-                    command rm -rf $$plugin_files_var
+                    command rm -rf (string replace -- \~ ~ $$plugin_files_var)
+
                     functions --erase (string replace --filter --regex -- '.+/functions/([^/]+)\.fish$' '$1' $$plugin_files_var)
 
                     for name in (string replace --filter --regex -- '.+/completions/([^/]+)\.fish$' '$1' $$plugin_files_var)
@@ -150,15 +162,15 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
             end
 
             if set --query update_plugins[1] || set --query install_plugins[1]
-                command mkdir -p $fisher_path/{functions,conf.d,completions}
+                command mkdir -p $fisher_path/{functions,themes,conf.d,completions}
             end
 
             for plugin in $update_plugins $install_plugins
                 set --local source $source_plugins[(contains --index -- "$plugin" $fetch_plugins)]
-                set --local files $source/{functions,conf.d,completions}/*
+                set --local files $source/{functions,themes,conf.d,completions}/*
 
                 if set --local index (contains --index -- $plugin $install_plugins)
-                    set --local user_files $fisher_path/{functions,conf.d,completions}/*
+                    set --local user_files $fisher_path/{functions,themes,conf.d,completions}/*
                     set --local conflict_files
 
                     for file in (string replace -- $source/ $fisher_path/ $files)
@@ -172,18 +184,19 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
                 end
 
                 for file in (string replace -- $source/ "" $files)
-                    command cp -Rf $source/$file $fisher_path/$file
+                    command cp -RLf $source/$file $fisher_path/$file
                 end
 
                 set --local plugin_files_var _fisher_(string escape --style=var -- $plugin)_files
-                set --query files[1] && set --universal $plugin_files_var (string replace -- $source $fisher_path $files)
+
+                set --query files[1] && set --universal $plugin_files_var (string replace -- $source $fisher_path $files | string replace -- ~ \~)
 
                 contains -- $plugin $_fisher_plugins || set --universal --append _fisher_plugins $plugin
                 contains -- $plugin $install_plugins && set --local event install || set --local event update
 
-                printf "%s\n" Installing\ (set_color --bold)$plugin(set_color normal) "           "$$plugin_files_var
+                printf "%s\n" Installing\ (set_color --bold)$plugin(set_color normal) "           "$$plugin_files_var | string replace -- \~ ~
 
-                for file in (string match --regex -- '.+/[^/]+\.fish$' $$plugin_files_var)
+                for file in (string match --regex -- '.+/[^/]+\.fish$' $$plugin_files_var | string replace -- \~ ~)
                     source $file
                     if set --local name (string replace --regex -- '.+conf\.d/([^/]+)\.fish$' '$1' $file)
                         emit {$name}_$event
@@ -197,20 +210,21 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
                 set --local commit_plugins
 
                 for plugin in $file_plugins
-                    contains -- $plugin $_fisher_plugins && set --append commit_plugins $plugin
+                    contains -- (string lower -- $plugin) (string lower -- $_fisher_plugins) && set --append commit_plugins $plugin
                 end
 
                 for plugin in $_fisher_plugins
-                    contains -- $plugin $commit_plugins || set --append commit_plugins $plugin
+                    contains -- (string lower -- $plugin) (string lower -- $commit_plugins) || set --append commit_plugins $plugin
                 end
 
-                printf "%s\n" $commit_plugins >$fish_plugins
+                string replace --regex -- $HOME \~ $commit_plugins >$fish_plugins
             else
                 set --erase _fisher_plugins
                 command rm -f $fish_plugins
             end
 
             set --local total (count $install_plugins) (count $update_plugins) (count $remove_plugins)
+
             test "$total" != "0 0 0" && echo (string join ", " (
                 test $total[1] = 0 || echo "Installed $total[1]") (
                 test $total[2] = 0 || echo "Updated $total[2]") (
@@ -221,14 +235,17 @@ function fisher --argument-names cmd --description "A plugin manager for Fish"
     end
 end
 
-## Migrations ##
-function _fisher_fish_postexec --on-event fish_postexec
+if ! set --query _fisher_upgraded_to_4_4
+    set --universal _fisher_upgraded_to_4_4
     if functions --query _fisher_list
+        set --query XDG_DATA_HOME[1] || set --local XDG_DATA_HOME ~/.local/share
+        command rm -rf $XDG_DATA_HOME/fisher
+        functions --erase _fisher_{list,plugin_parse}
         fisher update >/dev/null 2>/dev/null
-        set --query XDG_DATA_HOME || set --local XDG_DATA_HOME ~/.local/share
-        test -e $XDG_DATA_HOME/fisher && command rm -rf $XDG_DATA_HOME/fisher
-        functions --erase _fisher_list _fisher_plugin_parse
-        set --erase fisher_data
+    else
+        for var in (set --names | string match --entire --regex '^_fisher_.+_files$')
+            set $var (string replace -- ~ \~ $$var)
+        end
+        functions --erase _fisher_fish_postexec
     end
-    functions --erase _fisher_fish_postexec
 end
