@@ -30,9 +30,6 @@ return {
 ⠀⠘⣻⣿⣿⡿⡀⠀⠈⠭⠭⠭⠍⠛⠛⠛⢣⠀⠀⠀⠛⠒⠒⢒⣒⠒⣚⡒⣒⡒⠒⠒⠒⠒⠛⠒⣒⡒⠒⠒⠒⠒⠛⠒⠒⠒⠒⠒⠒⠒⠛⠛⠒⠒⠛⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⣿⣿⣶⣭⣿⣿⣶⣾⡇⠀
 					]],
 					keys = {
-						{ icon = "├", key = "t", desc = "File Tree", action = ":Neotree toggle reveal reveal_force_cwd"},
-						{ icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
-						{ icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
 						{ icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
 						{ icon = " ", key = "q", desc = "Quit", action = ":qa" },
 					},
@@ -40,6 +37,15 @@ return {
 				sections = {
 					{ section = "header" },
 					{ section = "keys",  gap = 1, padding = 1 },
+					{
+						icon = " ",
+						title = "Recent Files",
+						section = "recent_files",
+						cwd = true,
+						limit = 3,
+						indent = 3,
+						padding = 1,
+					},
 					{
 						icon = " ",
 						title = "Git Status",
