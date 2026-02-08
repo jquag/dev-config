@@ -434,5 +434,5 @@ bind C-k send-keys -R \; run 'sleep 0.2' \; clear-history
 bind W command-prompt "resize-pane -x '%%'"
 bind , command-prompt -I "" { rename-window "%%" }
 
-set -g default-command /opt/homebrew/bin/fish
-set -g default-shell /opt/homebrew/bin/fish
+# set -g default-command /opt/homebrew/bin/fish
+# set -g default-shell /opt/homebrew/bin/fish
