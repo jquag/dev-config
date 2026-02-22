@@ -172,17 +172,17 @@ return {
 	{
 		"windwp/nvim-ts-autotag",
 	},
-	{
-		"rest-nvim/rest.nvim",
-		config = function()
-			require('rest-nvim').setup({
-				request = {
-					-- Skip SSL verification
-					skip_ssl_verification = true,
-				}
-			})
-		end,
-	},
+	-- {
+	-- 	"rest-nvim/rest.nvim",
+	-- 	config = function()
+	-- 		require('rest-nvim').setup({
+	-- 			request = {
+	-- 				-- Skip SSL verification
+	-- 				skip_ssl_verification = true,
+	-- 			}
+	-- 		})
+	-- 	end,
+	-- },
 	{
 		'kristijanhusak/vim-dadbod-ui',
 		dependencies = {
