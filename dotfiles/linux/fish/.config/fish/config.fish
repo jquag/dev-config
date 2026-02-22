@@ -14,6 +14,9 @@ set -x MOZ_ENABLE_WAYLAND 1
 set -x QT_QPA_PLATFORM wayland
 set -x SDL_VIDEODRIVER wayland
 
+# SSH agent setup
+set -x SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-agent.socket
+
 if status is-interactive
 	# Commands to run in interactive sessions can go here
 
@@ -21,5 +24,9 @@ if status is-interactive
 	bass source /usr/share/nvm/init-nvm.sh
 	function nvm
 		bass source ~/.nvm/nvm.sh --no-use ';' nvm $argv
+	end
+
+	if not ssh-add -l >/dev/null 2>&1
+		ssh-add ~/.ssh/id_ed25519 >/dev/null 2>&1
 	end
 end

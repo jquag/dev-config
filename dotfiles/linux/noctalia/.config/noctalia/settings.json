@@ -75,7 +75,7 @@
                     "id": "Workspace",
                     "labelMode": "index",
                     "occupiedColor": "secondary",
-                    "pillSize": 0.6,
+                    "pillSize": 0.81,
                     "showApplications": false,
                     "showBadge": true,
                     "showLabelsOnlyWhenOccupied": true,
@@ -155,7 +155,7 @@
                     "chevronColor": "none",
                     "colorizeIcons": false,
                     "drawerEnabled": true,
-                    "hidePassive": false,
+                    "hidePassive": true,
                     "id": "Tray",
                     "pinned": [
                     ]
@@ -230,7 +230,7 @@
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
         "monitorForColors": "",
-        "predefinedScheme": "Noctalia (default)",
+        "predefinedScheme": "Catppuccin",
         "schedulingMode": "off",
         "useWallpaperColors": false
     },
@@ -319,7 +319,7 @@
         "position": "bottom",
         "showFrameIndicator": true,
         "sitOnFrame": false,
-        "size": 1
+        "size": 0.96
     },
     "general": {
         "allowPanelsOnScreenWithoutBar": true,
@@ -372,7 +372,7 @@
         "lockScreenTint": 0,
         "radiusRatio": 0.99,
         "reverseScroll": false,
-        "scaleRatio": 1,
+        "scaleRatio": 0.9500000000000001,
         "screenRadiusRatio": 1,
         "shadowDirection": "bottom_right",
         "shadowOffsetX": 2,
@@ -570,9 +570,9 @@
         "bluetoothHideUnnamedDevices": false,
         "boxBorderEnabled": false,
         "fontDefault": "Sans Serif",
-        "fontDefaultScale": 0.88,
+        "fontDefaultScale": 1.12,
         "fontFixed": "monospace",
-        "fontFixedScale": 0.89,
+        "fontFixedScale": 1.12,
         "networkPanelView": "wifi",
         "panelBackgroundOpacity": 0.93,
         "panelsAttachedToBar": true,
