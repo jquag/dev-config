@@ -162,7 +162,19 @@ return {
 			local null_ls = require("null-ls")
 			null_ls.setup({
 				sources = {
-					require("none-ls.diagnostics.eslint_d"),
+					require("none-ls.diagnostics.eslint_d").with({
+						condition = function(utils)
+							return utils.root_has_file({
+								".eslintrc",
+								".eslintrc.js",
+								".eslintrc.json",
+								".eslintrc.cjs",
+								"eslint.config.js",
+								"eslint.config.mjs",
+								"eslint.config.cjs",
+							})
+						end,
+					}),
 					null_ls.builtins.formatting.prettier,
 				},
 			})
