@@ -28,7 +28,7 @@ return {
 				bset(bufnr, 'n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
 				bset(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
 				bset(bufnr, "n", "<space>ll", "<cmd>LspRestart<cr>", opts)
-				require('illuminate').on_attach(client)
+				-- require('illuminate').on_attach(client)
 			end
 
 			-- update capabilities with completion

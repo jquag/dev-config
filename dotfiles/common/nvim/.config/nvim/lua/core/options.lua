@@ -31,7 +31,7 @@ M.config = function()
   -- opt.conceallevel = 0
   -- opt.cmdheight = 0
   opt.mousemodel = 'extend'
-	opt.winminwidth = 10 
+	opt.winminwidth = 10
 
   vim.g.loaded_matchparen = 1
   -- vim.g.markdown_folding = 1
@@ -46,6 +46,8 @@ M.config = function()
 	opt.splitright = true
 
 	opt.scrolloff = 5
+
+	vim.o.updatetime = 300
 end
 
 return M

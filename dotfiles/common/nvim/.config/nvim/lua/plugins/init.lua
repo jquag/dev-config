@@ -92,17 +92,17 @@ return {
 			})
 		end
 	},
-	'RRethy/vim-illuminate',
-	{
-		'fatih/vim-go',
-		enabled = false,
-		config = function()
-			-- vim.cmd([[:GoUpdateBinaries]])
-			-- vim.g.go_def_mode = 'gopls'
-			-- vim.g.go_info_mode = 'gopls'
-			-- vim.g.go_gopls_enabled = 0
-		end,
-	},
+	-- 'RRethy/vim-illuminate',
+	-- {
+	-- 	'fatih/vim-go',
+	-- 	enabled = false,
+	-- 	config = function()
+	-- 		-- vim.cmd([[:GoUpdateBinaries]])
+	-- 		-- vim.g.go_def_mode = 'gopls'
+	-- 		-- vim.g.go_info_mode = 'gopls'
+	-- 		-- vim.g.go_gopls_enabled = 0
+	-- 	end,
+	-- },
 	'tpope/vim-surround',
 	'tpope/vim-repeat',
 	'tpope/vim-fugitive',

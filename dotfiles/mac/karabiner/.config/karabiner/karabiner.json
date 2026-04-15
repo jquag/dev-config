@@ -43,6 +43,7 @@
                 }
             ],
             "name": "Internal Keyboard",
+            "selected": true,
             "virtual_hid_keyboard": {
                 "country_code": 0,
                 "keyboard_type_v2": "ansi"
@@ -98,7 +99,6 @@
         },
         {
             "name": "Default",
-            "selected": true,
             "virtual_hid_keyboard": {
                 "country_code": 0,
                 "keyboard_type_v2": "ansi"
