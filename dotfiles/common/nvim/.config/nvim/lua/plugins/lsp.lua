@@ -3,9 +3,6 @@ local is_npm_package_installed = require('utils').is_npm_package_installed
 return {
 	{
 		'neovim/nvim-lspconfig',
-		dependencies = {
-			'nvimtools/none-ls.nvim'
-		},
 		config = function()
 			local nvim_lsp = require('lspconfig')
 			local bset = vim.api.nvim_buf_set_keymap
@@ -31,7 +28,7 @@ return {
 				bset(bufnr, 'n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
 				bset(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
 				bset(bufnr, "n", "<space>ll", "<cmd>LspRestart<cr>", opts)
-				require('illuminate').on_attach(client)
+				-- require('illuminate').on_attach(client)
 			end
 
 			-- update capabilities with completion
@@ -39,8 +36,9 @@ return {
 			capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 			-- choose default formatters for certain lsps
-			local with_null_ls_formatter = function(client, bufnr)
+			local on_attach_with_disabled_lsp_formatter = function(client, bufnr)
 				client.server_capabilities.documentFormattingProvider = false
+				-- client.server_capabilities.documentRangeFormattingProvider = false
 				on_attach(client, bufnr)
 			end
 
@@ -74,11 +72,6 @@ return {
 				if lsp == 'elixirls' then
 					config.cmd = { "/Users/johnq/.local/share/nvim/mason/bin/elixir-ls" }
 				end
-
-				-- if lsp == 'svelte' then
-				-- 	config.root_dir = nvim_lsp.util.root_pattern('svelte.config.js')
-				-- 	-- config.on_attach = with_null_ls_formatter
-				-- end
 
 				if lsp == 'ts_ls' then
 					config.settings = {
@@ -114,7 +107,6 @@ return {
 					-- end
 
 					config.single_file_support = false
-					-- config.on_attach = with_null_ls_formatter
 				end
 
 				if lsp == 'lua_ls' then
@@ -141,7 +133,7 @@ return {
 				if lsp == 'denols' then
 					config.root_dir = nvim_lsp.util.root_pattern('deno.json', 'deno.jsonc')
 					config.single_file_support = false
-					config.on_attach = with_null_ls_formatter
+					config.on_attach = on_attach_with_disabled_lsp_formatter
 				end
 
 				if lsp == 'rust_analyzer' then
@@ -154,35 +146,38 @@ return {
 					config.cmd = { "/usr/local/bin/R", "--slave", "-e", "languageserver::run()" }
 				end
 
-				-- old way
-				-- nvim_lsp[lsp].setup(config)
-
 				vim.lsp.config(lsp, config)
 				vim.lsp.enable(lsp)
 			end
 		end
 	},
 	{
-		'nvimtools/none-ls.nvim',
+		"nvimtools/none-ls.nvim",
 		dependencies = {
+			"nvim-lua/plenary.nvim",
 			"nvimtools/none-ls-extras.nvim",
 		},
+		enabled = true,
 		config = function()
-			local bset = vim.api.nvim_buf_set_keymap
-			local opts = { noremap = true, silent = true }
-			local null_ls = require('null-ls')
-
-			null_ls.setup {
+			local null_ls = require("null-ls")
+			null_ls.setup({
 				sources = {
-					-- null_ls.builtins.formatting.prettier,
-					-- null_ls.builtins.formatting.sql_formatter,
-					require("none-ls.diagnostics.eslint"),
+					require("none-ls.diagnostics.eslint_d").with({
+						condition = function(utils)
+							return utils.root_has_file({
+								".eslintrc",
+								".eslintrc.js",
+								".eslintrc.json",
+								".eslintrc.cjs",
+								"eslint.config.js",
+								"eslint.config.mjs",
+								"eslint.config.cjs",
+							})
+						end,
+					}),
+					null_ls.builtins.formatting.prettier,
 				},
-				on_attach = function(client, bufnr)
-					bset(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-					bset(bufnr, 'v', '<space>f', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-				end
-			}
-		end
+			})
+		end,
 	},
 }
