@@ -58,6 +58,7 @@ return {
 				'intelephense',
 				'html',
 				'r_language_server',
+				'theme_check' --shopify
 			}
 
 			for _, lsp in pairs(servers) do
@@ -144,6 +145,10 @@ return {
 
 				if lsp == 'r_language_server' then
 					config.cmd = { "/usr/local/bin/R", "--slave", "-e", "languageserver::run()" }
+				end
+
+				if lsp == 'theme_check' then
+					config.cmd = { 'shopify', 'theme', 'language-server' }
 				end
 
 				vim.lsp.config(lsp, config)

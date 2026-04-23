@@ -53,8 +53,12 @@ return {
 					end
 				},
 				mapping = {
-					['<C-p>'] = cmp.mapping.select_prev_item(),
-					['<C-n>'] = cmp.mapping.select_next_item(),
+					['<C-p>'] = cmp.mapping.select_prev_item({
+						behavior = cmp.SelectBehavior.Select,
+					}),
+					['<C-n>'] = cmp.mapping.select_next_item({
+						behavior = cmp.SelectBehavior.Select,
+					}),
 					['<Up>'] = cmp.mapping.select_prev_item(),
 					['<Down>'] = cmp.mapping.select_next_item(),
 					['<C-d>'] = cmp.mapping.scroll_docs(-4),
@@ -146,15 +150,15 @@ return {
 		ft = { "markdown" },
 		build = function() vim.fn["mkdp#util#install"]() end,
 	},
-  {
-    "brenoprata10/nvim-highlight-colors",
-    enabled = true,
-    config = function()
-      require("nvim-highlight-colors").setup({
-        enable_tailwind = true,
-      })
-    end,
-  },
+	{
+		"brenoprata10/nvim-highlight-colors",
+		enabled = true,
+		config = function()
+			require("nvim-highlight-colors").setup({
+				enable_tailwind = true,
+			})
+		end,
+	},
 	{
 		"norcalli/nvim-colorizer.lua",
 		enabled = false,
@@ -273,11 +277,11 @@ return {
 			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
 		},
 	},
-  {
-    "sindrets/diffview.nvim",
-    enabled = true,
-    config = function()
-      vim.keymap.set("n", "<space>do", ":DiffviewOpen<CR>")
-    end,
-  },
+	{
+		"sindrets/diffview.nvim",
+		enabled = true,
+		config = function()
+			vim.keymap.set("n", "<space>do", ":DiffviewOpen<CR>")
+		end,
+	},
 }
