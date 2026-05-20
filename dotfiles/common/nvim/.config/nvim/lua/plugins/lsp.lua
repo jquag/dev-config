@@ -49,7 +49,7 @@ return {
 				'gopls',
 				'cssls',
 				'gdscript',
-				'pyright',
+				'basedpyright',
 				'tailwindcss',
 				'elixirls',
 				'clangd',
