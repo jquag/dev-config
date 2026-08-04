@@ -426,6 +426,10 @@ tmux_conf_uninstall_plugins_on_reload=true
 # "$@"
 # # /!\ do not remove the previous line
 
+
+set -g pane-border-status top
+set -g pane-border-format "#{pane_title}"
+
 # remap prefix
 unbind C-a
 set-option -g prefix2 C-s
@@ -436,6 +440,7 @@ bind C-k send-keys -R \; run 'sleep 0.2' \; clear-history
 
 bind W command-prompt "resize-pane -x '%%'"
 bind , command-prompt -I "" { rename-window "%%" }
+bind n command-prompt -I "" { select-pane -T "%%" }
 
 # COPY MODE STUFF
 # Keep selection and stay in copy mode

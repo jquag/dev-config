@@ -58,7 +58,8 @@ return {
 				'intelephense',
 				'html',
 				'r_language_server',
-				'theme_check' --shopify
+				'theme_check', --shopify
+				'ols'
 			}
 
 			for _, lsp in pairs(servers) do
