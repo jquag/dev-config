@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat >&2 <<'EOF'
+Usage: agent-jump <agent> [-d|--directory <dir>] [-k|--keys <keys>]
+
+Focus a running coding agent and optionally type text into it.
+
+Inside herdr the agent is located with the herdr socket API; inside tmux the
+call is handed off to tmux-jump.
+EOF
+    exit 1
+}
+
+[ $# -ge 1 ] || usage
+
+agent="$1"
+shift
+
+directory="."
+keys=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -d|--directory)
+            [ $# -ge 2 ] || usage
+            directory="$2"
+            shift 2
+            ;;
+        -k|--keys)
+            [ $# -ge 2 ] || usage
+            keys="$2"
+            shift 2
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+jump_herdr() {
+    local physical logical pane
+    physical=$(cd "$directory" && pwd -P) || exit 1
+    logical=$(cd "$directory" && pwd) || exit 1
+
+    pane=$(herdr agent list | jq -r \
+        --arg agent "$agent" \
+        --arg physical "$physical" \
+        --arg logical "$logical" \
+        --arg tab "${HERDR_TAB_ID:-}" \
+        --arg workspace "${HERDR_WORKSPACE_ID:-}" '
+        [ .result.agents[]
+          | select(.agent == $agent)
+          | { pane: .pane_id, score: (
+                (if .cwd == $physical or .cwd == $logical then 4 else 0 end)
+              + (if $tab != "" and .tab_id == $tab then 2 else 0 end)
+              + (if $workspace != "" and .workspace_id == $workspace then 1 else 0 end)) }
+          | select(.score > 0) ]
+        | sort_by(-.score)
+        | .[0].pane // empty')
+
+    if [ -z "$pane" ]; then
+        echo "agent-jump: no $agent agent found near $physical" >&2
+        exit 1
+    fi
+
+    herdr agent focus "$pane" >/dev/null
+    if [ -n "$keys" ]; then
+        herdr pane send-text "$pane" "$keys" >/dev/null
+    fi
+}
+
+if [ "${HERDR_ENV:-}" = 1 ]; then
+    jump_herdr
+elif [ -n "${TMUX:-}" ]; then
+    exec tmux-jump "$agent" -d "$directory" -k "$keys"
+else
+    echo "agent-jump: not running inside herdr or tmux" >&2
+    exit 1
+fi
