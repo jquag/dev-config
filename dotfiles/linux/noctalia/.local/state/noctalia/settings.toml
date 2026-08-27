@@ -1,0 +1,142 @@
+config_version = 13
+
+[accessibility]
+ui_scale = 1.350000012665987
+
+[bar.default]
+border_width = 1.5
+center = [ "launcher", "workspaces" ]
+end = [
+    "media",
+    "tray",
+    "notifications",
+    "clipboard",
+    "network",
+    "bluetooth",
+    "volume",
+    "brightness",
+    "control-center",
+    "session"
+]
+margin_ends = 5
+scale = 1.2500000111758709
+start = [ "wallpaper", "clock" ]
+thickness = 40
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "nightlight"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[desktop_widgets]
+schema_version = 2
+widget_order = []
+
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [desktop_widgets.widget]
+
+[dock]
+cross_axis_padding = 0
+icon_size = 31
+main_axis_padding = 20
+show_dots = true
+show_instance_count = false
+
+[location]
+address = "Saint Charles, MO"
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@DP-1" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 1280.0
+    cy = 1258.0
+    output = "DP-1"
+    placement_height = 1440.0
+    placement_width = 2560.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+[shell]
+corner_radius_scale = 0.90000001341104507
+
+    [shell.animation]
+    speed = 4.0
+
+[wallpaper]
+directory = "/home/john/Pictures/Wallpapers"
+
+    [wallpaper.automation]
+    enabled = true
+    recursive = false
+
+    [wallpaper.default]
+    path = "/home/john/Pictures/Wallpapers/cracked-highway-with-wildflowers-2560x1440-v0-9l4ov1ugmqjg1.webp"
+
+    [wallpaper.last]
+    path = "/home/john/Pictures/Wallpapers/cracked-highway-with-wildflowers-2560x1440-v0-9l4ov1ugmqjg1.webp"
+
+    [wallpaper.monitors.DP-1]
+    path = "/home/john/Pictures/Wallpapers/cracked-highway-with-wildflowers-2560x1440-v0-9l4ov1ugmqjg1.webp"
+
+[widget.battery]
+enabled = false
+
+[widget.brightness]
+enabled = false
+
+[widget.media]
+enabled = false
+
+[widget.network]
+show_label = false
+
+[widget.volume]
+show_label = false
+
+[widget.workspaces]
+labels_only_when_occupied = true
+scale = 1.5
+style = "focus_hint"
