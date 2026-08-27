@@ -20,7 +20,9 @@ set -x SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-agent.socket
 if status is-interactive
 	# Commands to run in interactive sessions can go here
 
+	fish_add_path ~/.local/bin
 	fish_add_path ~/.nvm
+
 	bass source /usr/share/nvm/init-nvm.sh
 	function nvm
 		bass source ~/.nvm/nvm.sh --no-use ';' nvm $argv
