@@ -6,7 +6,7 @@ function SendAiReference(tool)
 	end
 
 	local reference = '@' .. file_path
-	vim.fn.system({ 'tmux-jump', tool, '-d', '.', '-k', reference })
+	vim.fn.system({ 'agent-jump', tool, '-d', '.', '-k', reference })
 end
 
 function SendAiRefWithLineRange(tool)
@@ -28,6 +28,6 @@ function SendAiRefWithLineRange(tool)
 		reference = '@' .. file_path .. '#L' .. start_line .. '-' .. end_line .. ' '
 	end
 
-	vim.fn.system({ 'tmux-jump', tool,  '-d', '.', '-k', reference })
+	vim.fn.system({ 'agent-jump', tool,  '-d', '.', '-k', reference })
 end
 
