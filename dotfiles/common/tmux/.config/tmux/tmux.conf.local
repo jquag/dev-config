@@ -440,10 +440,13 @@ bind C-k send-keys -R \; run 'sleep 0.2' \; clear-history
 
 bind W command-prompt "resize-pane -x '%%'"
 bind , command-prompt -I "" { rename-window "%%" }
-bind n command-prompt -I "" { select-pane -T "%%" }
+bind N command-prompt -I "" { select-pane -T "%%" }
 
 # agent dashboard in a full-height pane on the left edge; closes when it exits
-bind a split-window -fhb -l 60 '~/.local/bin/agent-dashboard --no-name --no-age --no-pid'
+bind a split-window -fhb -l 60 '~/.local/bin/agent-board --hide-name --hide-id --exclude-bg'
+
+bind-key g display-popup -E -w 95% -h 95% -d "#{pane_current_path}" "lazygit"
+bind-key n new-window -n Journal -c "#{pane_current_path}" "sujo"
 
 # COPY MODE STUFF
 # Keep selection and stay in copy mode
