@@ -25,6 +25,7 @@ return {
       vim.cmd('highlight LineNr guifg=#5b5b5b')
       vim.cmd('highlight CursorLineNr guifg=orange')
       vim.cmd('highlight Visual guibg=#8f617a')
+      vim.cmd('highlight @markup.list.checked.text guifg=#6c7086')
     end
   },
 	{
