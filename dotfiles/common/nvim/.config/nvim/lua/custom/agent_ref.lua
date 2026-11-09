@@ -1,15 +1,23 @@
-function SendAiReference(tool)
+local function send_to_agent(tool, text)
+	vim.fn.system({ 'agent-jump', tool, '-d', '.', '-k', text })
+	if vim.v.shell_error ~= 0 then
+		vim.fn.setreg('+', text)
+		vim.notify('No ' .. tool .. ' pane found; copied to clipboard: ' .. text, vim.log.levels.WARN)
+	end
+end
+
+function SendAiReference(tool, prefix)
 	local file_path = vim.fn.expand('%:.')
 	if file_path == '' then
 		print('No file open')
 		return
 	end
 
-	local reference = '@' .. file_path
-	vim.fn.system({ 'agent-jump', tool, '-d', '.', '-k', reference })
+	local reference = (prefix or '') .. '@' .. file_path
+	send_to_agent(tool, reference)
 end
 
-function SendAiRefWithLineRange(tool)
+function SendAiRefWithLineRange(tool, prefix)
 	local file_path = vim.fn.expand('%:.')
 	if file_path == '' then
 		print('No file open')
@@ -23,11 +31,10 @@ function SendAiRefWithLineRange(tool)
 
 	local reference
 	if start_line == end_line then
-		reference = '@' .. file_path .. '#L' .. start_line .. ' '
+		reference = (prefix or '') .. '@' .. file_path .. '#L' .. start_line .. ' '
 	else
-		reference = '@' .. file_path .. '#L' .. start_line .. '-' .. end_line .. ' '
+		reference = (prefix or '') .. '@' .. file_path .. '#L' .. start_line .. '-' .. end_line .. ' '
 	end
 
-	vim.fn.system({ 'agent-jump', tool,  '-d', '.', '-k', reference })
+	send_to_agent(tool, reference)
 end
-
