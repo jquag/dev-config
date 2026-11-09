@@ -93,6 +93,8 @@ function M.config()
 	set('v', '<space>io', '<Cmd>:lua SendAiRefWithLineRange("opencode")<CR>', opts)
 	set('n', '<space>ii', '<Cmd>:lua SendAiReference("claude")<CR>', opts)
 	set('v', '<space>ii', '<Cmd>:lua SendAiRefWithLineRange("claude")<CR>', opts)
+	set('n', '<space>is', '<Cmd>:lua SendAiReference("claude", "/dev-workflow:summarize-change ")<CR>', opts)
+	set('v', '<space>is', '<Cmd>:lua SendAiRefWithLineRange("claude", "/summarize-change ")<CR>', opts)
 
 	-- git
 	set('n', '<space>gg', '<Cmd>:tab Git<CR>', opts)
