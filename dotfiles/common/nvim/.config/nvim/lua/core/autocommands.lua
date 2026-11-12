@@ -59,7 +59,7 @@ M.config = function()
 				end
 			end
 			vim.keymap.set('n', '<space>x', toggle_checkbox, { buffer = args.buf, silent = true, desc = 'Toggle markdown checkbox' })
-			vim.keymap.set('i', '<c-x>', toggle_checkbox, { buffer = args.buf, silent = true, desc = 'Toggle markdown checkbox' })
+			-- vim.keymap.set('i', '<c-x>', toggle_checkbox, { buffer = args.buf, silent = true, desc = 'Toggle markdown checkbox' })
 
 			vim.keymap.set('i', '<cr>', function()
 				if vim.api.nvim_get_current_line():match('^%s*%- %[[ xX]%]') then

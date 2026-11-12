@@ -1,0 +1,303 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat >&2 <<'EOF'
+Usage: git-cleanup [options]
+
+Remove local branches and worktrees whose work has already landed in the
+default branch. Branches count as landed when they are merged, rebase-merged
+or squash-merged into the local or remote default branch.
+
+Worktrees are only removed when they have no uncommitted or untracked changes.
+Locked worktrees and the worktree you are standing in are never touched.
+
+Options:
+  -n, --dry-run     Show what would be removed and exit
+  -y, --yes         Do not ask for confirmation
+  -b, --base <br>   Branch to compare against (default: remote HEAD, main or master)
+  -g, --gone        Also remove branches whose upstream was deleted, even if
+                    their commits cannot be found in the base branch
+      --no-fetch    Skip 'git fetch --all --prune'
+  -h, --help        Show this help
+EOF
+    exit "${1:-1}"
+}
+
+die() {
+    echo "git-cleanup: $*" >&2
+    exit 1
+}
+
+dry_run=0
+assume_yes=0
+include_gone=0
+fetch=1
+base=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -n|--dry-run) dry_run=1; shift ;;
+        -y|--yes) assume_yes=1; shift ;;
+        -g|--gone) include_gone=1; shift ;;
+        --no-fetch) fetch=0; shift ;;
+        -b|--base)
+            [ $# -ge 2 ] || usage
+            base="$2"
+            shift 2
+            ;;
+        -h|--help) usage 0 ;;
+        *) usage ;;
+    esac
+done
+
+git rev-parse --git-dir >/dev/null 2>&1 || die "not inside a git repository"
+
+if [ -t 1 ]; then
+    bold=$'\033[1m' dim=$'\033[2m' red=$'\033[31m' yellow=$'\033[33m' reset=$'\033[0m'
+else
+    bold="" dim="" red="" yellow="" reset=""
+fi
+
+remote=""
+if git remote | grep -qx origin; then
+    remote=origin
+else
+    remote=$(git remote | head -n1)
+fi
+
+if [ "$fetch" -eq 1 ] && [ -n "$remote" ]; then
+    echo "${dim}Fetching and pruning remotes...${reset}"
+    git fetch --all --prune --quiet || echo "${yellow}warning: fetch failed, using local state${reset}" >&2
+fi
+
+if [ -z "$base" ] && [ -n "$remote" ]; then
+    base=$(git symbolic-ref --quiet --short "refs/remotes/$remote/HEAD" 2>/dev/null || true)
+    base=${base#"$remote"/}
+fi
+if [ -z "$base" ]; then
+    for candidate in main master; do
+        if git show-ref --verify --quiet "refs/heads/$candidate" ||
+            { [ -n "$remote" ] && git show-ref --verify --quiet "refs/remotes/$remote/$candidate"; }; then
+            base=$candidate
+            break
+        fi
+    done
+fi
+[ -n "$base" ] || die "could not determine the base branch; pass --base"
+
+base_refs=()
+git show-ref --verify --quiet "refs/heads/$base" && base_refs+=("refs/heads/$base")
+[ -n "$remote" ] && git show-ref --verify --quiet "refs/remotes/$remote/$base" &&
+    base_refs+=("refs/remotes/$remote/$base")
+[ ${#base_refs[@]} -gt 0 ] || die "base branch '$base' does not exist"
+
+# Prints how <ref> landed in a base ref, or fails if it has not.
+landed_reason() {
+    local ref=$1 b out mb tmp
+    for b in "${base_refs[@]}"; do
+        if git merge-base --is-ancestor "$ref" "$b" 2>/dev/null; then
+            echo merged
+            return 0
+        fi
+    done
+    for b in "${base_refs[@]}"; do
+        mb=$(git merge-base "$b" "$ref" 2>/dev/null) || continue
+        out=$(git cherry "$b" "$ref" "$mb" 2>/dev/null) || continue
+        if ! grep -q '^+' <<<"$out"; then
+            echo rebase-merged
+            return 0
+        fi
+        tmp=$(git commit-tree "$ref^{tree}" -p "$mb" -m git-cleanup) || continue
+        out=$(git cherry "$b" "$tmp" "$mb" 2>/dev/null) || continue
+        if [[ $out == -* ]]; then
+            echo squash-merged
+            return 0
+        fi
+    done
+    return 1
+}
+
+# A branch that was just created and never committed to looks "merged" because
+# it points at a commit already in the base branch.
+is_untouched() {
+    local br=$1 entries
+    git config --get "branch.$br.merge" >/dev/null && return 1
+    entries=$(git reflog show --format=%H "refs/heads/$br" -- 2>/dev/null | wc -l)
+    [ "$entries" -le 1 ]
+}
+
+is_gone() {
+    [ "$(git for-each-ref --format='%(upstream:track)' "refs/heads/$1")" = "[gone]" ]
+}
+
+# Prints the reason <branch> can be deleted, or fails.
+branch_reason() {
+    local br=$1 reason
+    if reason=$(landed_reason "refs/heads/$br"); then
+        if [ "$reason" = merged ] && is_untouched "$br"; then
+            return 1
+        fi
+        echo "$reason"
+        return 0
+    fi
+    if [ "$include_gone" -eq 1 ] && is_gone "$br"; then
+        echo "upstream gone"
+        return 0
+    fi
+    return 1
+}
+
+current_wt=$(git rev-parse --show-toplevel 2>/dev/null || true)
+current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+
+protected=$'\n'"$base"$'\n'main$'\n'master$'\n'develop$'\n'"$current_branch"$'\n'
+is_protected() {
+    [[ $protected == *$'\n'"$1"$'\n'* ]]
+}
+
+wt_plan=()     # "branch<US>reason<US>path"
+branch_plan=() # "branch<US>reason"
+skipped=()
+
+plan_worktree() {
+    local path=$1 branch=$2 head=$3 locked=$4 prunable=$5 reason label
+    [ -n "$path" ] || return 0
+    label=${branch:-"detached at ${head:0:8}"}
+
+    if [ -n "$branch" ]; then
+        is_protected "$branch" && return 0
+        protected+="$branch"$'\n'
+    fi
+
+    if [ "$prunable" -eq 1 ] || [ ! -d "$path" ]; then
+        return 0
+    fi
+
+    if [ -n "$branch" ]; then
+        reason=$(branch_reason "$branch") || return 0
+    else
+        reason=$(landed_reason "$head") || return 0
+    fi
+
+    if [ "$locked" -eq 1 ]; then
+        skipped+=("worktree $path ($label): locked")
+    elif [ "$path" = "$current_wt" ]; then
+        skipped+=("worktree $path ($label): you are in it")
+    elif [ -n "$(git -C "$path" status --porcelain 2>/dev/null || echo error)" ]; then
+        skipped+=("worktree $path ($label): has uncommitted or untracked changes")
+    else
+        wt_plan+=("$branch"$'\x1f'"$reason"$'\x1f'"$path")
+    fi
+    return 0
+}
+
+first=1
+wt_path="" wt_branch="" wt_head="" wt_locked=0 wt_prunable=0
+while IFS= read -r line; do
+    case "$line" in
+        "worktree "*) wt_path=${line#worktree } ;;
+        "HEAD "*) wt_head=${line#HEAD } ;;
+        "branch "*) wt_branch=${line#branch refs/heads/} ;;
+        locked*) wt_locked=1 ;;
+        prunable*) wt_prunable=1 ;;
+        "")
+            if [ "$first" -eq 1 ]; then
+                [ -n "$wt_branch" ] && protected+="$wt_branch"$'\n'
+                first=0
+            else
+                plan_worktree "$wt_path" "$wt_branch" "$wt_head" "$wt_locked" "$wt_prunable"
+            fi
+            wt_path="" wt_branch="" wt_head="" wt_locked=0 wt_prunable=0
+            ;;
+    esac
+done < <(git worktree list --porcelain; echo)
+
+while IFS= read -r br; do
+    is_protected "$br" && continue
+    reason=$(branch_reason "$br") || continue
+    branch_plan+=("$br"$'\x1f'"$reason")
+done < <(git for-each-ref --format='%(refname:short)' refs/heads)
+
+stale_wt=$(git worktree prune --dry-run --verbose 2>&1 || true)
+
+echo "Base branch: ${bold}$base${reset} (${base_refs[*]})"
+echo
+
+if [ -n "$stale_wt" ]; then
+    echo "${bold}Stale worktree metadata to prune:${reset}"
+    sed 's/^/  /' <<<"$stale_wt"
+    echo
+fi
+
+if [ ${#wt_plan[@]} -gt 0 ]; then
+    echo "${bold}Worktrees to remove:${reset}"
+    for entry in "${wt_plan[@]}"; do
+        IFS=$'\x1f' read -r b r p <<<"$entry"
+        echo "  ${red}$p${reset} ${dim}(${b:-detached}, $r)${reset}"
+    done
+    echo
+fi
+
+if [ ${#branch_plan[@]} -gt 0 ] || [ ${#wt_plan[@]} -gt 0 ]; then
+    echo "${bold}Branches to delete:${reset}"
+    for entry in ${wt_plan[@]+"${wt_plan[@]}"}; do
+        IFS=$'\x1f' read -r b r _ <<<"$entry"
+        [ -n "$b" ] && echo "  ${red}$b${reset} ${dim}($r, with its worktree)${reset}"
+    done
+    for entry in ${branch_plan[@]+"${branch_plan[@]}"}; do
+        IFS=$'\x1f' read -r b r <<<"$entry"
+        echo "  ${red}$b${reset} ${dim}($r)${reset}"
+    done
+    echo
+fi
+
+if [ ${#skipped[@]} -gt 0 ]; then
+    echo "${bold}Skipped:${reset}"
+    for s in "${skipped[@]}"; do
+        echo "  ${yellow}$s${reset}"
+    done
+    echo
+fi
+
+if [ -z "$stale_wt" ] && [ ${#wt_plan[@]} -eq 0 ] && [ ${#branch_plan[@]} -eq 0 ]; then
+    echo "Nothing to clean up."
+    exit 0
+fi
+
+if [ "$dry_run" -eq 1 ]; then
+    echo "${dim}Dry run; nothing was changed.${reset}"
+    exit 0
+fi
+
+if [ "$assume_yes" -eq 0 ]; then
+    printf 'Proceed? [Y/n] '
+    read -r answer </dev/tty || answer="n"
+    case "$answer" in
+        ""|y|Y|yes|YES) ;;
+        *) echo "Aborted."; exit 1 ;;
+    esac
+fi
+
+failed=0
+
+[ -n "$stale_wt" ] && git worktree prune
+
+for entry in ${wt_plan[@]+"${wt_plan[@]}"}; do
+    IFS=$'\x1f' read -r b _ p <<<"$entry"
+    if git worktree remove "$p"; then
+        echo "Removed worktree $p"
+        if [ -n "$b" ]; then
+            git branch -D "$b" || failed=1
+        fi
+    else
+        failed=1
+    fi
+done
+
+for entry in ${branch_plan[@]+"${branch_plan[@]}"}; do
+    IFS=$'\x1f' read -r b _ <<<"$entry"
+    git branch -D "$b" || failed=1
+done
+
+exit "$failed"
