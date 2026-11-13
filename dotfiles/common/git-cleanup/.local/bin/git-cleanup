@@ -18,6 +18,8 @@ Options:
   -b, --base <br>   Branch to compare against (default: remote HEAD, main or master)
   -g, --gone        Also remove branches whose upstream was deleted, even if
                     their commits cannot be found in the base branch
+  -e, --empty       Also remove branches with no commits of its own (created
+                    from the base branch and never committed to)
       --no-fetch    Skip 'git fetch --all --prune'
   -h, --help        Show this help
 EOF
@@ -32,6 +34,7 @@ die() {
 dry_run=0
 assume_yes=0
 include_gone=0
+include_empty=0
 fetch=1
 base=""
 
@@ -40,6 +43,7 @@ while [ $# -gt 0 ]; do
         -n|--dry-run) dry_run=1; shift ;;
         -y|--yes) assume_yes=1; shift ;;
         -g|--gone) include_gone=1; shift ;;
+        -e|--empty) include_empty=1; shift ;;
         --no-fetch) fetch=0; shift ;;
         -b|--base)
             [ $# -ge 2 ] || usage
@@ -131,12 +135,14 @@ is_gone() {
     [ "$(git for-each-ref --format='%(upstream:track)' "refs/heads/$1")" = "[gone]" ]
 }
 
-# Prints the reason <branch> can be deleted, or fails.
+# Prints the reason <branch> can be deleted, or fails: 2 when it has no commits
+# of its own, 1 otherwise.
 branch_reason() {
     local br=$1 reason
     if reason=$(landed_reason "refs/heads/$br"); then
         if [ "$reason" = merged ] && is_untouched "$br"; then
-            return 1
+            [ "$include_empty" -eq 1 ] || return 2
+            reason="no commits of its own"
         fi
         echo "$reason"
         return 0
@@ -175,7 +181,10 @@ plan_worktree() {
     fi
 
     if [ -n "$branch" ]; then
-        reason=$(branch_reason "$branch") || return 0
+        reason=$(branch_reason "$branch") || {
+            [ $? -eq 2 ] && skipped+=("worktree $path ($label): no commits of its own (use --empty)")
+            return 0
+        }
     else
         reason=$(landed_reason "$head") || return 0
     fi
@@ -215,7 +224,10 @@ done < <(git worktree list --porcelain; echo)
 
 while IFS= read -r br; do
     is_protected "$br" && continue
-    reason=$(branch_reason "$br") || continue
+    reason=$(branch_reason "$br") || {
+        [ $? -eq 2 ] && skipped+=("branch $br: no commits of its own (use --empty)")
+        continue
+    }
     branch_plan+=("$br"$'\x1f'"$reason")
 done < <(git for-each-ref --format='%(refname:short)' refs/heads)
 
